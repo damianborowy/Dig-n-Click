@@ -5,9 +5,15 @@ using UnityEngine.EventSystems;
 
 public class RockOnClick : MonoBehaviour, IPointerDownHandler
 {
+    private RockController _rc;
+
+    private void Start()
+    {
+        _rc = GetComponent<RockController>();
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("RockOnClick");
-        GameController.Instance.AddMoney(10);
+        _rc.Hit(1);
     }
 }

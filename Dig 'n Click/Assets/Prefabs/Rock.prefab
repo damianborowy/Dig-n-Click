@@ -21,13 +21,12 @@ GameObject:
   - component: {fileID: 4985800679773384}
   - component: {fileID: 212954334540284992}
   - component: {fileID: 50655189849451492}
-  - component: {fileID: 58493330146153194}
-  - component: {fileID: 114872229528407256}
-  - component: {fileID: 114824776635399412}
   - component: {fileID: 114539338157716248}
+  - component: {fileID: 114288948677906280}
+  - component: {fileID: 61882176921635864}
   m_Layer: 0
   m_Name: Rock
-  m_TagString: Untagged
+  m_TagString: Rock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -65,8 +64,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 1
---- !u!58 &58493330146153194
-CircleCollider2D:
+--- !u!61 &61882176921635864
+BoxCollider2D:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -77,9 +76,31 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.30816615}
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 30.000002, y: 30.000002}
+    newSize: {x: 0.16, y: 0.16}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Radius: 9.227003
+  m_Size: {x: 15, y: 15}
+  m_EdgeRadius: 0
+--- !u!114 &114288948677906280
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1391738525671248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a00091e4c3382964a8e2c82199d6da8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitialFallingSpeed: 25
 --- !u!114 &114539338157716248
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -91,29 +112,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be8c501ceff90b947807d30eccdb1e34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114824776635399412
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1391738525671248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f549101e2a82c94a9c46056f6ca39b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &114872229528407256
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1391738525671248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d9bb0628a9115a49bfeae0a5f1165fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RotationSpeed: 200
 --- !u!212 &212954334540284992
 SpriteRenderer:
   m_ObjectHideFlags: 1
