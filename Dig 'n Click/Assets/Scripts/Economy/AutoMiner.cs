@@ -7,13 +7,13 @@ public class AutoMiner : MonoBehaviour
     {
         StartCoroutine(AutoMine());
     }
-
-    IEnumerator AutoMine()
+    //comment
+    private IEnumerator AutoMine()
     {
         while (true)
         {
             yield return new WaitForSeconds(1);
-            GameController.Instance.Money += 1;
+            GameController.Instance.AddMoney(1);
         }
     }
 }

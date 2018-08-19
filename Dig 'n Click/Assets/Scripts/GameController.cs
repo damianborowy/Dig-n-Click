@@ -1,14 +1,38 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public static GameController Instance { get; set; }
-    public double Money { get; set; }
-    public UnityEngine.UI.Text _moneyDisplay;
+    public static GameController Instance;
+    public Text MoneyDisplay;
+    public Text LevelDisplay;
 
-    void Awake()
+    private double _money;
+    private int _level = 1;
+
+    public void AddMoney(double added)
+    {
+        _money += added;
+    }
+    public void SubMoney(double subbed)
+    {
+        _money -= subbed;
+    }
+    public double GetMoney()
+    {
+        return _money;
+    }
+    public int GetLevel()
+    {
+        return _level;
+    }
+    public void SetLevel(int level)
+    {
+        this._level = level;
+    }
+
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -23,6 +47,7 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        _moneyDisplay.text = "Money: " + Money;
+        MoneyDisplay.text = "Money: " + _money;
+        LevelDisplay.text = "Level: " + _level;
     }
 }
