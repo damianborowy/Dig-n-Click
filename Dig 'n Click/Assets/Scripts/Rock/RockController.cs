@@ -17,13 +17,6 @@ public class RockController : MonoBehaviour
     private Rigidbody2D _rb;
     private SpriteRenderer _sr;
 
-    private Slider _slider;
-    private Text _hpLeftDisplay;
-    private float _health;
-    private float _maxHealth;
-    private double _reward;
-    private Rigidbody2D _rb;
-
     private void Start()
     {
         _slider = GameObject.FindGameObjectWithTag("Slider").GetComponent<Slider>();
