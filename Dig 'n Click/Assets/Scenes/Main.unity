@@ -122,8 +122,9 @@ GameObject:
   m_Component:
   - component: {fileID: 28543377}
   - component: {fileID: 28543376}
+  - component: {fileID: 28543378}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -140,6 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc2bf178a26336c438b90da2cca379fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _moneyDisplay: {fileID: 1136867835}
 --- !u!4 &28543377
 Transform:
   m_ObjectHideFlags: 0
@@ -153,6 +155,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &28543378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 28543375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e18e64efa9498454c8b11499309facd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enabled: 0
 --- !u!1 &62537579
 GameObject:
   m_ObjectHideFlags: 0
