@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Rock
   - Slider
+  - Ground
+  - AscendButton
+  - Shadow
   layers:
   - Default
   - TransparentFX
@@ -45,6 +48,9 @@ TagManager:
     locked: 0
   - name: Background
     uniqueID: 3088367269
+    locked: 0
+  - name: RockShadow
+    uniqueID: 1376895213
     locked: 0
   - name: Rock
     uniqueID: 2947505243

@@ -14,6 +14,6 @@ public class RockOnClick : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        _rc.Hit(1);
+        _rc.Hit(GameController.Instance.GetStrength());
     }
 }

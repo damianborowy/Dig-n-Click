@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,21 +9,24 @@ public class RockController : MonoBehaviour
 
     private Slider _slider;
     private Text _hpLeftDisplay;
-    private float _health;
-    private float _maxHealth;
+    private double _health;
+    private double _maxHealth;
     private double _reward;
     private Rigidbody2D _rb;
     private SpriteRenderer _sr;
+    private bool _isDestroyed;
 
     private void Start()
     {
+        _isDestroyed = false;
+
         _slider = GameObject.FindGameObjectWithTag("Slider").GetComponent<Slider>();
         _hpLeftDisplay = _slider.GetComponentInChildren<Text>();
 
         int level = GameController.Instance.GetLevel();
-        _health = 10 * Mathf.Pow(1.1f, level) - 1;
+        _health = Math.Round(4 * Mathf.Pow(1.12f, level) + 6);
         _maxHealth = _health;
-        _reward = Random.Range(1, 10) * level;
+        _reward = UnityEngine.Random.Range(1, 2) * level;
 
         _rb = GetComponent<Rigidbody2D>();
         _rb.velocity = new Vector2(0, -InitialFallingSpeed);
@@ -34,7 +35,7 @@ public class RockController : MonoBehaviour
         _sr.sprite = Sprites[0];
     }
 
-    public void Hit(float strength)
+    public void Hit(int strength)
     {
         if (strength < _health)
         {
@@ -46,13 +47,10 @@ public class RockController : MonoBehaviour
                 _sr.sprite = Sprites[2];
             else if (_health < _maxHealth * 3 / 4)
                 _sr.sprite = Sprites[1];
-
-                Debug.Log("Rock's Health: " + _health);
         }
-        else
+        else if (!_isDestroyed)
         {
-            Debug.Log("Rock destroyed");
-
+            _isDestroyed = true;
             GameController.Instance.AddMoney(_reward);
             GameController.Instance.SpawnRock();
             Destroy(gameObject);
@@ -61,7 +59,8 @@ public class RockController : MonoBehaviour
 
     private void Update()
     {
-        _slider.value = _health / _maxHealth;
-        _hpLeftDisplay.text = _health + " / " + _maxHealth;
+        _slider.value = Convert.ToSingle(_health / _maxHealth);
+        _hpLeftDisplay.text =
+            MoneyConverter.ConvertNumber(_health) + " / " + MoneyConverter.ConvertNumber(_maxHealth);
     }
 }
