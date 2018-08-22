@@ -2,26 +2,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EquipmentUI : MonoBehaviour {
+public class EquipmentUI : MonoBehaviour
+{
+    public int SlotAmount;
+    public Transform SlotsPanel;
+    public GameObject Slot;
 
-    private bool toggled;
+    private bool _toggled;
 
-	void Start () {
-        gameObject.SetActive(false);
-        toggled = false;
-	}
+    void Awake()
+    {
+        _toggled = false;
+        for (int i = 0; i < SlotAmount; ++i)
+        {
+            Instantiate(Slot, SlotsPanel);
+        }
+    }
 
     public void ToggleActive()
     {
-        if (toggled)
+        if (_toggled)
         {
             gameObject.SetActive(false);
-            toggled = false;
+            _toggled = false;
         }
         else
         {
             gameObject.SetActive(true);
-            toggled = true;
+            _toggled = true;
         }
     }
 }

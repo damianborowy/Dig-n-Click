@@ -9,6 +9,7 @@ TagManager:
   - Ground
   - AscendButton
   - Shadow
+  - Dropper
   layers:
   - Default
   - TransparentFX
