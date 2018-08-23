@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class EquipmentUI : MonoBehaviour
 {
-    public int SlotAmount;
-    public Transform SlotsPanel;
+    public int ColumnCount;
+    public int RowCount;
     public GameObject Slot;
 
     private bool _toggled;
+    private int _slotAmount;
 
-    void Awake()
+    private void Awake()
     {
         _toggled = false;
-        for (int i = 0; i < SlotAmount; ++i)
-        {
-            Instantiate(Slot, SlotsPanel);
-        }
+        _slotAmount = ColumnCount * RowCount;
+        for (int i = 0; i < _slotAmount; ++i)
+            Instantiate(Slot, transform.Find("Slots Panel"));
     }
 
     public void ToggleActive()
@@ -31,5 +31,15 @@ public class EquipmentUI : MonoBehaviour
             gameObject.SetActive(true);
             _toggled = true;
         }
+    }
+
+    public int GetColumnCount()
+    {
+        return ColumnCount;
+    }
+
+    public int GetRowCount()
+    {
+        return RowCount;
     }
 }

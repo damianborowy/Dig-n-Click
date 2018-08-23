@@ -7,6 +7,7 @@ using UnityEngine;
 public class Ore
 {
     public string Name;
+    public Color DropTextColor;
     public float DropWeight;
     public double Value;
     public int MinLevel;
