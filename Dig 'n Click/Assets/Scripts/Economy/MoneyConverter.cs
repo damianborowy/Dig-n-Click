@@ -7,7 +7,7 @@ public class MoneyConverter
 {
     private enum Type {Scientific, Normal, Simple}
 
-    private static Type _type = Type.Normal;
+    private static Type _type = Type.Scientific;
     private static Dictionary<int, string> _normalDisctionary;
     private static Dictionary<int, string> _simpleDictionary;
 

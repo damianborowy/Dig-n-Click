@@ -4,42 +4,44 @@ using UnityEngine;
 
 public class EquipmentUI : MonoBehaviour
 {
-    public int ColumnCount;
-    public int RowCount;
     public GameObject Slot;
 
     private bool _toggled;
-    private int _slotAmount;
+    private UIMover _uiMover;
 
     private void Awake()
     {
         _toggled = false;
-        _slotAmount = ColumnCount * RowCount;
-        for (int i = 0; i < _slotAmount; ++i)
-            Instantiate(Slot, transform.Find("Slots Panel"));
+        for (int i = 0; i < EquipmentController.Instance.Capacity; ++i)
+        {
+            GameObject slot = Instantiate(Slot, transform.Find("ScrollableSlots").Find("SlotsPanel"));
+            EquipmentController.Instance.AddItemSlot(slot);
+        }
     }
 
-    public void ToggleActive()
+    private void Start()
     {
-        if (_toggled)
+        _uiMover = GetComponent<UIMover>();
+    }
+
+    public void Toggle()
+    {
+        if (_toggled && !_uiMover.IsUIMoving())
         {
-            gameObject.SetActive(false);
+            Debug.Log("Moving outside");
+            _uiMover.MoveUI();
             _toggled = false;
+        }
+        else if (!_toggled && !_uiMover.IsUIMoving())
+        {
+            Debug.Log("Moving inside");
+            _uiMover.MoveUI();
+            _toggled = true;
         }
         else
         {
-            gameObject.SetActive(true);
-            _toggled = true;
+            Debug.Log("If statement failure");
+            Debug.Log("UI moving is: " + _uiMover.IsUIMoving());
         }
-    }
-
-    public int GetColumnCount()
-    {
-        return ColumnCount;
-    }
-
-    public int GetRowCount()
-    {
-        return RowCount;
     }
 }

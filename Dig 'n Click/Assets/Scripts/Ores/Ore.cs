@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class Ore
 {
     public string Name;
+    public Sprite OreSprite;
     public Color DropTextColor;
     public float DropWeight;
     public double Value;
@@ -14,25 +14,15 @@ public class Ore
     public int MaxLevel;
 }
 
-public class OreCompareByDropChance : IComparer<Ore>
-{
-    public int Compare(Ore x, Ore y)
-    {
-        if (x.DropWeight > y.DropWeight)
-            return 1;
-        if (x.DropWeight < y.DropWeight)
-            return -1;
-        return 0;
-    }
-}
-
+[Serializable]
 public class OreCompareByValue : IComparer<Ore>
 {
+    //Comparation for decreasing value order
     public int Compare(Ore x, Ore y)
     {
-        if (x.Value > y.Value)
-            return 1;
         if (x.Value < y.Value)
+            return 1;
+        if (x.Value > y.Value)
             return -1;
         return 0;
     }

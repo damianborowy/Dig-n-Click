@@ -7,7 +7,10 @@ public class AutoSave : MonoBehaviour {
     public int SaveInterval = 5;
 
 	void Start () {
-        StartCoroutine(AutoSaveCoroutine());
+	    if (GameController.Instance.EnableSaving)
+	    {
+	        StartCoroutine(AutoSaveCoroutine());
+	    }
 	}
 	
     IEnumerator AutoSaveCoroutine()

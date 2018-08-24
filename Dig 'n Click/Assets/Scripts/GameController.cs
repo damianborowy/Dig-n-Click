@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -14,18 +13,17 @@ public class GameController : MonoBehaviour
     public Text AscendCostDisplay;
     public GameObject[] Rocks;
     public ButtonActivator AscendButton;
-    public int BaseAscendCost = 5;
-    public int AscendBias = -1;
-    public float AscendExponentialMultiplier = 1.12f;
+    public bool EnableSaving = true;
 
-    private double _money;
+    private double _money = 0;
     private int _maxLevel = 1;
     private int _level = 1;
     private int _strength;
     private int _autoStrength;
     private double _nextLevelCost;
     private Vector3 _rockSpawn;
-    private DateTime epochTimeStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private readonly DateTime _epochTimeStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private string _saveFilePath;
 
     public int GetStrength()
     {
@@ -110,7 +108,10 @@ public class GameController : MonoBehaviour
 
     public void CalculateNextLevelCost()
     {
-        _nextLevelCost = Mathf.Round(BaseAscendCost * Mathf.Pow(AscendExponentialMultiplier, _maxLevel) + AscendBias);
+        _nextLevelCost = BasicEconomyValues.Exponent(BasicEconomyValues.BaseAscendCost,
+            BasicEconomyValues.AscendBias,
+            BasicEconomyValues.AscendExponentialMultiplier,
+            _maxLevel);
         AscendCostDisplay.text = "$" + MoneyConverter.ConvertNumber(_nextLevelCost);
         ChangeButtonColor();
     }
@@ -120,7 +121,7 @@ public class GameController : MonoBehaviour
         _strength = 1;
     }
 
-    private void CalculateAutoStrength()
+    public void CalculateAutoStrength()
     {
         _autoStrength = 1;
     }
@@ -152,9 +153,17 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        Load();
+        _saveFilePath = Application.persistentDataPath + "/playerInfo.dat";
+
+        if (EnableSaving)
+        {
+            Load();
+        }
+
         SetMoneyText();
         SetLevelText();
+        ChangeButtonColor();
+        ToggleButtonVisibility();
         CalculateNextLevelCost();
         CalculateAutoStrength();
         CalculateStrength();
@@ -179,12 +188,14 @@ public class GameController : MonoBehaviour
     public void Save()
     {
         var bf = new BinaryFormatter();
-        var file = File.Open(Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
+        var file = File.Open(_saveFilePath, FileMode.Open);
 
         PlayerData data = new PlayerData();
         data.MaxLevel = _maxLevel;
+        data.Level = _level;
         data.Money = _money;
-        data.Time = (int) (DateTime.UtcNow - epochTimeStart).TotalSeconds;
+        data.Time = (int) (DateTime.UtcNow - _epochTimeStart).TotalSeconds;
+        data.Items = SerializableOre.ConvertToSerializable(EquipmentController.Instance.Items);
 
         bf.Serialize(file, data);
         file.Close();
@@ -192,31 +203,43 @@ public class GameController : MonoBehaviour
 
     public void Load()
     {
-        if(File.Exists(Application.persistentDataPath + "/playerInfo.dat"))
+        if (File.Exists(_saveFilePath) && new FileInfo(_saveFilePath).Length != 0)
         {
             var bf = new BinaryFormatter();
-            var file = File.Open(Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
+            var file = File.Open(_saveFilePath, FileMode.Open);
 
             PlayerData data = (PlayerData) bf.Deserialize(file);
             file.Close();
 
             _maxLevel = data.MaxLevel;
+            _level = data.Level;
             _money = data.Money;
+            SerializableOre.DeserializeOres(data.Items);
 
-            int idleTime = (int) (DateTime.UtcNow - epochTimeStart).TotalSeconds - data.Time;
+            int idleTime = (int) (DateTime.UtcNow - _epochTimeStart).TotalSeconds - data.Time;
 
-            if(idleTime > 0)
+            if (idleTime > 0)
             {
                 IdleEarnings.IdleReward(idleTime);
             }
+
+            Debug.Log("Loading succeeded");
+        }
+        else if (!File.Exists(_saveFilePath))
+        {
+            File.Create(_saveFilePath).Dispose();
+
+            Debug.Log("Nothing to load, creating a save file instead");
         }
     }
-}
 
-[Serializable]
-class PlayerData
-{
-    public int MaxLevel;
-    public double Money;
-    public int Time;
+    [Serializable]
+    private class PlayerData
+    {
+        public int MaxLevel;
+        public int Level;
+        public double Money;
+        public int Time;
+        public Dictionary<string, int> Items;
+    }
 }

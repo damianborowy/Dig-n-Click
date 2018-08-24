@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224105600946719706}
   - component: {fileID: 222925776487518514}
   - component: {fileID: 114360174849315614}
+  - component: {fileID: 114936591914413492}
   - component: {fileID: 114382051846780134}
   - component: {fileID: 114866376208779848}
   m_Layer: 5
@@ -52,7 +53,7 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 25
-    m_FontStyle: 0
+    m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 2
     m_MaxSize: 40
@@ -60,7 +61,7 @@ MonoBehaviour:
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Fading text
 --- !u!114 &114382051846780134
@@ -74,7 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75677b3822263941b210e64536c2986, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FadeSpeed: 0.2
+  FadeSpeed: 0.5
 --- !u!114 &114866376208779848
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -86,8 +87,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 969ea714f4f80854e8ac61e217e8b113, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 25
+  MoveSpeed: 20
   MoveDirection: 0
+--- !u!114 &114936591914413492
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1170026163165926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1573420865, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
 --- !u!222 &222925776487518514
 CanvasRenderer:
   m_ObjectHideFlags: 1

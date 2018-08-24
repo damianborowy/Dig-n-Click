@@ -6,9 +6,6 @@ public class RockController : MonoBehaviour
 {
     public float InitialFallingSpeed;
     public Sprite[] Sprites;
-    public int BaseHealth = 4;
-    public int HealthBias = 6;
-    public float HealthExponentialMultiplier = 1.12f;
 
     private Slider _slider;
     private Text _hpLeftDisplay;
@@ -25,9 +22,9 @@ public class RockController : MonoBehaviour
         _isDestroyed = false;
 
         int level = GameController.Instance.GetLevel();
-        _health = Math.Round(BaseHealth * Mathf.Pow(HealthExponentialMultiplier, level) + HealthBias);
+        _health = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, level);
         _maxHealth = _health;
-        _reward = UnityEngine.Random.Range(1, 2) * level;
+        _reward = BasicEconomyValues.MoneyReward(level);
 
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _rigidbody2D.velocity = new Vector2(0, -InitialFallingSpeed);

@@ -150,6 +150,9 @@ MonoBehaviour:
   - {fileID: 1391738525671248, guid: 56a65ffbc5669834fbfdcaeaa2cd265b, type: 2}
   - {fileID: 1888948793667010, guid: 0a06dcb37adb9f141bffc2c0b1517f46, type: 2}
   AscendButton: {fileID: 1029454035}
+  BaseAscendCost: 5
+  AscendBias: -1
+  AscendExponentialMultiplier: 1.12
   EnableSaving: 1
 --- !u!4 &28543377
 Transform:
@@ -186,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68cb830fe1bd0974fb3e8d66148f027c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SaveInterval: 2
+  SaveInterval: 60
 --- !u!114 &28543380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1894,7 +1897,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1244827192}
-        m_MethodName: Toggle
+        m_MethodName: ToggleActive
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1951,14 +1954,13 @@ GameObject:
   - component: {fileID: 1244827191}
   - component: {fileID: 1244827190}
   - component: {fileID: 1244827192}
-  - component: {fileID: 1244827193}
   m_Layer: 5
   m_Name: EquipmentPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1244827189
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2025,19 +2027,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Slot: {fileID: 1591973388896916, guid: cd9dedc2a2207f34eb2ce86138b39404, type: 2}
---- !u!114 &1244827193
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1244827188}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9943453212ad2645a31b351ef122e88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MoveSpeed: 800
-  MoveAnchor: 2
 --- !u!1 &1299695062
 GameObject:
   m_ObjectHideFlags: 0

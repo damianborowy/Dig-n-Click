@@ -41,7 +41,7 @@ public class BackgroundScroller : MonoBehaviour
     {
         _startPosition = transform.position;
 
-        while (transform.position.y != _startPosition.y + _tileYLength)
+        while (transform.position.y != _startPosition.y + _tileYLength) //precision issue to fix
         {
             float newY = Mathf.MoveTowards(transform.position.y, _startPosition.y + _tileYLength,
                 ScrollSpeed * Time.deltaTime);
@@ -60,7 +60,7 @@ public class BackgroundScroller : MonoBehaviour
 
         transform.position = _startPosition;
 
-        while (transform.position.y + _tileYLength != _startPosition.y)
+        while (transform.position.y + _tileYLength != _startPosition.y) //precision issue to fix
         {
             float newY = Mathf.MoveTowards(transform.position.y, _startPosition.y - _tileYLength,
                 ScrollSpeed * Time.deltaTime);

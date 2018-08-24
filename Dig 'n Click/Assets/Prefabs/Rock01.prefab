@@ -106,6 +106,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5d8e5a033ad466e45bc34b2dc0624554, type: 3}
   - {fileID: 21300000, guid: e7fe5879234113649ad9abe4ef5b1f4b, type: 3}
   - {fileID: 21300000, guid: b3307bfae5861774c83b36b1a159712a, type: 3}
+  BaseHealth: 4
+  HealthBias: 6
+  HealthExponentialMultiplier: 1.14
 --- !u!114 &114539338157716248
 MonoBehaviour:
   m_ObjectHideFlags: 1
