@@ -66,9 +66,8 @@ public class EquipmentController : MonoBehaviour
         if (Items.ContainsKey(itemToAdd))
         {
             Debug.Log("Adding " + itemToAdd.Name + " in amount of " + amount);
-            InstantiateDropText(itemToAdd);
-            int newAmountOfItems = Items[itemToAdd] + amount;
-            Items[itemToAdd] = newAmountOfItems;
+            InstantiateDropText(itemToAdd, amount);
+            Items[itemToAdd] += amount;
             UpdateItemSlots(itemToAdd);
             Debug.Log("New amount is: " + Items[itemToAdd]);
             return true;
@@ -82,7 +81,7 @@ public class EquipmentController : MonoBehaviour
         }
 
         Debug.Log("Adding new " + itemToAdd.Name + " in amount of " + amount);
-        InstantiateDropText(itemToAdd);
+        InstantiateDropText(itemToAdd, amount);
         Items.Add(itemToAdd, amount);
         UpdateItemSlots();
         return true;
@@ -126,14 +125,14 @@ public class EquipmentController : MonoBehaviour
         return true;
     }
 
-    private void InstantiateDropText(Ore dropedOre)
+    private void InstantiateDropText(Ore dropedOre, int amount = 1)
     {
         GameObject instantiatedTextGameObject = Instantiate(DropText, Canvas);
         Text text = instantiatedTextGameObject.GetComponent<Text>();
         Vector3 randomPosition = Random.insideUnitSphere * TextSpawnRadius;
         text.rectTransform.position = new Vector3(Canvas.position.x + randomPosition.x,
             Canvas.position.y + randomPosition.y, text.transform.position.z);
-        text.text = "+1 " + dropedOre.Name;
+        text.text = amount.ToString("+#;-#;0") + " " + dropedOre.Name;
         text.color = dropedOre.DropTextColor;
     }
 

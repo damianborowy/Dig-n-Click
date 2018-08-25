@@ -8,10 +8,11 @@ using UnityEngine.EventSystems;
 public class UIMover : MonoBehaviour
 {
     public float MoveSpeed;
+    public float ComparisonPrecisionExponent;
     public Direction MoveAnchor;
 
     private RectTransform _rectTransform;
-    private RectTransform _canvasRectTransform;
+    private RectTransform _parentRectTransform;
     private Vector3 _directionVector3;
     private Vector3 _startPosition;
     private bool _isUIMoving;
@@ -41,20 +42,21 @@ public class UIMover : MonoBehaviour
 
     private void Start()
     {
-        _canvasRectTransform = transform.parent.gameObject.GetComponent<RectTransform>();
+        _parentRectTransform = transform.parent.gameObject.GetComponent<RectTransform>();
         if (MoveAnchor == Direction.Left || MoveAnchor == Direction.Right)
         {
-            float canvasWidth = _canvasRectTransform.rect.width * _canvasRectTransform.localScale.x;
-            _rectTransform.position = _rectTransform.position + _directionVector3 * canvasWidth;
+            float canvasWidth = _parentRectTransform.rect.width * _parentRectTransform.localScale.x;
+            _rectTransform.position = _parentRectTransform.position + _directionVector3 * canvasWidth;
         }
         else
         {
-            float canvasHeight = _canvasRectTransform.rect.height * _canvasRectTransform.localScale.y;
-            _rectTransform.position = _rectTransform.position + _directionVector3 * canvasHeight;
+            float canvasHeight = _parentRectTransform.rect.height * _parentRectTransform.localScale.y;
+            _rectTransform.position = _parentRectTransform.position + _directionVector3 * canvasHeight;
         }
 
         _startPosition = _rectTransform.position;
         _isInside = false;
+        gameObject.SetActive(false);
     }
 
     public void MoveUI()
@@ -62,6 +64,8 @@ public class UIMover : MonoBehaviour
         if (_isUIMoving) return;
 
         _isUIMoving = true;
+        gameObject.SetActive(true);
+
         if (_isInside)
             StartCoroutine(MoveOutside());
         else
@@ -76,18 +80,20 @@ public class UIMover : MonoBehaviour
     private IEnumerator MoveInside()
     {
         if (MoveAnchor == Direction.Up || MoveAnchor == Direction.Down)
-            while (transform.position.y != _canvasRectTransform.position.y) //precision issue to fix
+            while ((int) (transform.position.y * 10 * ComparisonPrecisionExponent) !=
+                   (int) (_parentRectTransform.position.y * 10 * ComparisonPrecisionExponent)) //rounding values to avoid float comparison
             {
-                float newY = Mathf.MoveTowards(transform.position.y, _canvasRectTransform.position.y,
+                float newY = Mathf.MoveTowards(transform.position.y, _parentRectTransform.position.y,
                     MoveSpeed * Time.deltaTime);
                 transform.position =
                     new Vector3(transform.position.x, newY, transform.position.z);
                 yield return null;
             }
         else
-            while (transform.position.x != _canvasRectTransform.position.x) //precision issue to fix
+            while ((int) (transform.position.x * 10 * ComparisonPrecisionExponent) !=
+                   (int) (_parentRectTransform.position.x * 10 * ComparisonPrecisionExponent)) //rounding values to avoid float comparison
             {
-                float newX = Mathf.MoveTowards(transform.position.x, _canvasRectTransform.position.x,
+                float newX = Mathf.MoveTowards(transform.position.x, _parentRectTransform.position.x,
                     MoveSpeed * Time.deltaTime);
                 transform.position =
                     new Vector3(newX, transform.position.y, transform.position.z);
@@ -101,7 +107,8 @@ public class UIMover : MonoBehaviour
     private IEnumerator MoveOutside()
     {
         if (MoveAnchor == Direction.Up || MoveAnchor == Direction.Down)
-            while (transform.position.y != _startPosition.y) //precision issue to fix
+            while ((int) (transform.position.y * 10 * ComparisonPrecisionExponent) !=
+                   (int) (_startPosition.y * 10 * ComparisonPrecisionExponent)) //rounding values to avoid float comparison
             {
                 float newY = Mathf.MoveTowards(transform.position.y, _startPosition.y,
                     MoveSpeed * Time.deltaTime);
@@ -110,7 +117,8 @@ public class UIMover : MonoBehaviour
                 yield return null;
             }
         else
-            while (transform.position.x != _startPosition.x) //precision issue to fix
+            while ((int) (transform.position.x * 10 * ComparisonPrecisionExponent) !=
+                   (int) (_startPosition.x * 10 * ComparisonPrecisionExponent)) //rounding values to avoid float comparison
             {
                 float newX = Mathf.MoveTowards(transform.position.x, _startPosition.x,
                     MoveSpeed * Time.deltaTime);
@@ -121,5 +129,7 @@ public class UIMover : MonoBehaviour
 
         _isUIMoving = false;
         _isInside = false;
+
+        gameObject.SetActive(false);
     }
 }
