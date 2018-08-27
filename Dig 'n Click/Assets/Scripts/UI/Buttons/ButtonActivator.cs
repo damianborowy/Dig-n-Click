@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ButtonActivator : MonoBehaviour
 {
-    private Color _full = new Color(255, 255, 255, 1);
-    private Color _faded = new Color(255, 255, 255, 0.9f);
     private Button _button;
 
     private void Start()
@@ -16,13 +14,13 @@ public class ButtonActivator : MonoBehaviour
 
     public void SetActive()
     {
-        _button.image.color = _full;
+        _button.image.color = _button.colors.normalColor;
         _button.interactable = true;
     }
 
     public void SetInactive()
     {
-        _button.image.color = _faded;
+        _button.image.color = _button.colors.disabledColor;
         _button.interactable = false;
     }
 

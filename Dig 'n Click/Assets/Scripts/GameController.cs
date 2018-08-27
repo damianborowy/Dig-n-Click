@@ -14,16 +14,39 @@ public class GameController : MonoBehaviour
     public GameObject[] Rocks;
     public ButtonActivator AscendButton;
     public bool EnableSaving = true;
+    public static readonly DateTime EpochTimeStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    private double _money = 0;
+    private double _money;
     private int _maxLevel = 1;
     private int _level = 1;
-    private int _strength;
-    private int _autoStrength;
+    private int _strength = 1;
+    private int _autoStrength = 1;
     private double _nextLevelCost;
     private Vector3 _rockSpawn;
-    private readonly DateTime _epochTimeStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private string _saveFilePath;
+    private int _idleTime = (int) (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
+    private bool _firstLaunch = true;
+    private bool _tutorialCompleted = false;
+
+    public bool IsFirstLaunch()
+    {
+        return _firstLaunch;
+    }
+
+    public void NotFirstLaunch()
+    {
+        _firstLaunch = false;
+    }
+
+    public bool IsTutorialCompleted()
+    {
+        return _tutorialCompleted;
+    }
+
+    public void CompleteTutorial()
+    {
+        _tutorialCompleted = true;
+    }
 
     public int GetStrength()
     {
@@ -39,7 +62,6 @@ public class GameController : MonoBehaviour
     {
         _money += added;
         SetMoneyText();
-        ChangeButtonColor();
     }
 
     public void SubMoney(double subbed)
@@ -106,6 +128,11 @@ public class GameController : MonoBehaviour
         return _nextLevelCost;
     }
 
+    public int GetIdleTime()
+    {
+        return _idleTime;
+    }
+
     public void CalculateNextLevelCost()
     {
         _nextLevelCost = BasicEconomyValues.Exponent(BasicEconomyValues.BaseAscendCost,
@@ -113,7 +140,6 @@ public class GameController : MonoBehaviour
             BasicEconomyValues.AscendExponentialMultiplier,
             _maxLevel);
         AscendCostDisplay.text = "$" + MoneyConverter.ConvertNumber(_nextLevelCost);
-        ChangeButtonColor();
     }
 
     public void CalculateStrength()
@@ -162,21 +188,12 @@ public class GameController : MonoBehaviour
 
         SetMoneyText();
         SetLevelText();
-        ChangeButtonColor();
         ToggleButtonVisibility();
         CalculateNextLevelCost();
         CalculateAutoStrength();
         CalculateStrength();
         SetRockSpawn();
         SpawnRock();
-    }
-
-    private void ChangeButtonColor()
-    {
-        if (_nextLevelCost <= _money)
-            AscendButton.SetActive();
-        else
-            AscendButton.SetInactive();
     }
 
     private void SetRockSpawn()
@@ -194,8 +211,10 @@ public class GameController : MonoBehaviour
         data.MaxLevel = _maxLevel;
         data.Level = _level;
         data.Money = _money;
-        data.Time = (int) (DateTime.UtcNow - _epochTimeStart).TotalSeconds;
+        data.Time = (int) (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
         data.Items = SerializableOre.ConvertToSerializable(EquipmentController.Instance.Items);
+        data.TutorialCompleted = _tutorialCompleted;
+        data.FirstLaunch = false;
 
         bf.Serialize(file, data);
         file.Close();
@@ -214,32 +233,24 @@ public class GameController : MonoBehaviour
             _maxLevel = data.MaxLevel;
             _level = data.Level;
             _money = data.Money;
+            _idleTime = data.Time;
+            _firstLaunch = data.FirstLaunch;
+            _tutorialCompleted = data.TutorialCompleted;
+
             SerializableOre.DeserializeOres(data.Items);
-
-            int idleTime = (int) (DateTime.UtcNow - _epochTimeStart).TotalSeconds - data.Time;
-
-            if (idleTime > 0)
-            {
-                IdleEarnings.IdleReward(idleTime);
-            }
-
-            Debug.Log("Loading succeeded");
         }
         else if (!File.Exists(_saveFilePath))
         {
             File.Create(_saveFilePath).Dispose();
-
-            Debug.Log("Nothing to load, creating a save file instead");
         }
     }
 
     [Serializable]
     private class PlayerData
     {
-        public int MaxLevel;
-        public int Level;
+        public int MaxLevel, Level, Time;
         public double Money;
-        public int Time;
+        public bool FirstLaunch, TutorialCompleted;
         public Dictionary<string, int> Items;
     }
 }

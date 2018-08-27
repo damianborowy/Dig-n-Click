@@ -45,13 +45,13 @@ public class UIMover : MonoBehaviour
         _parentRectTransform = transform.parent.gameObject.GetComponent<RectTransform>();
         if (MoveAnchor == Direction.Left || MoveAnchor == Direction.Right)
         {
-            float canvasWidth = _parentRectTransform.rect.width * _parentRectTransform.localScale.x;
-            _rectTransform.position = _parentRectTransform.position + _directionVector3 * canvasWidth;
+            float parentWidth = _parentRectTransform.rect.width * _parentRectTransform.lossyScale.x;
+            _rectTransform.position = _parentRectTransform.position + _directionVector3 * parentWidth;
         }
         else
         {
-            float canvasHeight = _parentRectTransform.rect.height * _parentRectTransform.localScale.y;
-            _rectTransform.position = _parentRectTransform.position + _directionVector3 * canvasHeight;
+            float parentHeight = _parentRectTransform.rect.height * _parentRectTransform.lossyScale.y;
+            _rectTransform.position = _parentRectTransform.position + _directionVector3 * parentHeight;
         }
 
         _startPosition = _rectTransform.position;

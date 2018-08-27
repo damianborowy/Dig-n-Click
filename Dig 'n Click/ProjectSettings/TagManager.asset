@@ -10,6 +10,8 @@ TagManager:
   - AscendButton
   - Shadow
   - Dropper
+  - FadingTextSpawn
+  - IdleRewardWindow
   layers:
   - Default
   - TransparentFX
