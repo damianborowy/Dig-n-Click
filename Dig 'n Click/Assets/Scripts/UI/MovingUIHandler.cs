@@ -3,15 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MovingUIHandler : MonoBehaviour
 {
     public UIMover Equipment;
     public UIMover Upgrades;
-   
+
     public enum Type
     {
-        Equipment, Upgrades
+        Equipment,
+        Upgrades
     }
 
     private bool _isElementInside;
@@ -54,6 +56,7 @@ public class MovingUIHandler : MonoBehaviour
             _elementInside = target;
             _isElementInside = true;
         }
+
         target.MoveUI();
     }
 }

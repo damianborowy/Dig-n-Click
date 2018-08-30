@@ -12,6 +12,12 @@ TagManager:
   - Dropper
   - FadingTextSpawn
   - IdleRewardWindow
+  - UpgradeSlot
+  - SellButton
+  - Canvas
+  - Particles
+  - ExitButton
+  - Text
   layers:
   - Default
   - TransparentFX
@@ -55,6 +61,12 @@ TagManager:
   - name: RockShadow
     uniqueID: 1376895213
     locked: 0
+  - name: DestroyParticles
+    uniqueID: 807942909
+    locked: 0
   - name: Rock
     uniqueID: 2947505243
+    locked: 0
+  - name: HitParticles
+    uniqueID: 3576336713
     locked: 0

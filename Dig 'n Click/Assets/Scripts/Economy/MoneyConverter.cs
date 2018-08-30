@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class MoneyConverter
 {
-    private enum Type {Scientific, Normal, Simple}
+    public enum Type {Scientific, Normal, Simple}
+    public static Type _type = Type.Normal;
 
-    private static Type _type = Type.Scientific;
-    private static Dictionary<int, string> _normalDisctionary;
+    private static Dictionary<int, string> _normalDictionary;
     private static Dictionary<int, string> _simpleDictionary;
 
     private static void Start()
     {
-        _normalDisctionary = new Dictionary<int, string>
+        _normalDictionary = new Dictionary<int, string>
         {
             {6, "Mil"},
             {9, "Bil"},
@@ -48,7 +48,7 @@ public class MoneyConverter
 
     public static string ConvertNumber(double value)
     {
-        if (_normalDisctionary == null || _simpleDictionary == null)
+        if (_normalDictionary == null || _simpleDictionary == null)
             Start();
 
         if (value >= 1000000)
@@ -118,7 +118,7 @@ public class MoneyConverter
 
         if (_type.Equals(Type.Normal))
         {
-            stringBuilder.Append(_normalDisctionary[exponent]);
+            stringBuilder.Append(_normalDictionary[exponent]);
         }
         else if (_type.Equals(Type.Simple))
         {

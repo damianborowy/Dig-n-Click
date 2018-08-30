@@ -1,16 +1,19 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class RockController : MonoBehaviour
+public class RockController : MonoBehaviour, IPointerDownHandler
 {
     public float InitialFallingSpeed;
     public Sprite[] Sprites;
+    public GameObject HitParticles;
+    public GameObject DestroyParticles;
+    public double Health;
+    public double MaxHealth;
 
     private Slider _slider;
     private Text _hpLeftDisplay;
-    private double _health;
-    private double _maxHealth;
     private double _reward;
     private Rigidbody2D _rigidbody2D;
     private SpriteRenderer _spriteRenderer;
@@ -22,8 +25,8 @@ public class RockController : MonoBehaviour
         _isDestroyed = false;
 
         int level = GameController.Instance.GetLevel();
-        _health = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, level);
-        _maxHealth = _health;
+        Health = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, level);
+        MaxHealth = Health;
         _reward = BasicEconomyValues.MoneyReward(level);
 
         _rigidbody2D = GetComponent<Rigidbody2D>();
@@ -43,17 +46,17 @@ public class RockController : MonoBehaviour
             _dropper = dropper.GetComponent<OreDropper>();
     }
 
-    public void Hit(int strength)
+    public void Hit(double strength)
     {
-        if (strength < _health)
+        if (strength < Health)
         {
-            _health -= strength;
+            Health -= strength;
 
-            if (_health < _maxHealth / 4)
+            if (Health < MaxHealth / 4)
                 _spriteRenderer.sprite = Sprites[3];
-            else if (_health < _maxHealth / 2)
+            else if (Health < MaxHealth / 2)
                 _spriteRenderer.sprite = Sprites[2];
-            else if (_health < _maxHealth * 3 / 4)
+            else if (Health < MaxHealth * 3 / 4)
                 _spriteRenderer.sprite = Sprites[1];
 
             UpdateSlider();
@@ -61,11 +64,13 @@ public class RockController : MonoBehaviour
         else if (!_isDestroyed)
         {
             _isDestroyed = true;
-            _health = 0;
+            Health = 0;
             UpdateSlider();
+            Instantiate(DestroyParticles, transform.position, Quaternion.identity);
 
             _dropper.DropOre();
             GameController.Instance.AddMoney(_reward);
+            AutoMiner.Instance.StopMiner();
             GameController.Instance.SpawnRock();
             Destroy(gameObject);
         }
@@ -73,8 +78,14 @@ public class RockController : MonoBehaviour
 
     private void UpdateSlider()
     {
-        _slider.value = Convert.ToSingle(_health / _maxHealth);
+        _slider.value = Convert.ToSingle(Health / MaxHealth);
         _hpLeftDisplay.text =
-            MoneyConverter.ConvertNumber(_health) + " / " + MoneyConverter.ConvertNumber(_maxHealth);
+            MoneyConverter.ConvertNumber(Health) + " / " + MoneyConverter.ConvertNumber(MaxHealth);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        Instantiate(HitParticles, eventData.pointerCurrentRaycast.worldPosition, Quaternion.identity);
+        Hit(GameController.Instance.GetStrength());
     }
 }

@@ -9,85 +9,112 @@ public class ShowIdleRewardWindow : MonoBehaviour
     public string FontName;
     public int FontSize;
 
-    private GameObject textGameObject;
+    private GameObject _textGameObject;
 
     private void Start()
     {
         if (!GameController.Instance.IsFirstLaunch())
         {
-            GameObject fadingTextSpawn = GameObject.FindWithTag("FadingTextSpawn");
+            CreateRewardWindow();
+        }
+        else
+            transform.localScale = Vector3.zero;
+    }
 
-            textGameObject = new GameObject("MinedOreText");
-            RectTransform textRectTransform = textGameObject.AddComponent<RectTransform>();
-            textRectTransform.sizeDelta = new Vector2(textRectTransform.rect.width, FontSize);
-            Text text = textGameObject.AddComponent<Text>();
-            text.font = Font.CreateDynamicFontFromOSFont(FontName, FontSize);
-            text.fontSize = FontSize;
-            text.alignment = TextAnchor.MiddleCenter;
+    private void OnApplicationFocus(bool hasFocus) //change to OnApplicationPause
+    {
+        if (hasFocus)
+            CreateRewardWindow();
+    }
 
-            int idleTime = (int) (DateTime.UtcNow - GameController.EpochTimeStart).TotalSeconds -
-                           GameController.Instance.GetIdleTime();
+    private void CreateRewardWindow()
+    {
+        transform.localScale = Vector3.one;
+        foreach (Transform child in transform)
+        {
+            if (child.CompareTag("ExitButton"))
+                child.gameObject.GetComponent<Button>().interactable = true;
+            if (child.CompareTag("Text"))
+                Destroy(child.gameObject);
+        }
 
-            double moneyReward = 0;
+        _textGameObject = new GameObject("Text");
+        _textGameObject.tag = "Text";
+        RectTransform textRectTransform = _textGameObject.AddComponent<RectTransform>();
+        textRectTransform.sizeDelta = new Vector2(textRectTransform.rect.width, FontSize);
+        Text text = _textGameObject.AddComponent<Text>();
+        text.font = Font.CreateDynamicFontFromOSFont(FontName, FontSize);
+        text.fontSize = FontSize;
+        text.alignment = TextAnchor.MiddleCenter;
 
-            if (idleTime > 0)
-            {
-                moneyReward = IdleReward(idleTime);
-            }
+        int idleTime = (int)(DateTime.UtcNow - GameController.EpochTimeStart).TotalSeconds -
+                       GameController.Instance.GetIdleTime();
 
-            if (fadingTextSpawn.transform.childCount == 0 && moneyReward == 0)
-            {
-                GameObject instantiatedGameObject = Instantiate(textGameObject, transform);
-                instantiatedGameObject.GetComponent<Text>().text = "Nothing!";
-            }
-            else
-            {
-                GameObject instantiatedMoneyGameObject = Instantiate(textGameObject, transform);
-                instantiatedMoneyGameObject.GetComponent<Text>().text =
-                    "+ $" + MoneyConverter.ConvertNumber(moneyReward);
-
-                foreach (Transform child in fadingTextSpawn.transform)
-                {
-                    GameObject instantiatedGameObject = Instantiate(textGameObject, transform);
-                    instantiatedGameObject.GetComponent<Text>().text = child.gameObject.GetComponent<Text>().text;
-                }
-            }
-
-            Instantiate(textGameObject, transform); //empty filler
+        KeyValuePair<double, Dictionary<Ore, int>> rewardMoneyOres =
+            new KeyValuePair<double, Dictionary<Ore, int>>();
+        if (idleTime > 0)
+        {
+            rewardMoneyOres = IdleReward(idleTime);
         }
         else
         {
-            Destroy(GameObject.FindGameObjectWithTag("IdleRewardWindow"));
+            throw new NotSupportedException("Negative idle time");
         }
+
+        double moneyReward = rewardMoneyOres.Key;
+        Dictionary<Ore, int> oreReward = rewardMoneyOres.Value;
+
+        if (moneyReward < 1 && oreReward.Count == 0)
+        {
+            GameObject instantiatedGameObject = Instantiate(_textGameObject, transform);
+            instantiatedGameObject.GetComponent<Text>().text = "Nothing!";
+        }
+        else
+        {
+            if (moneyReward >= 1)
+            {
+                GameObject instantiatedMoneyGameObject = Instantiate(_textGameObject, transform);
+                instantiatedMoneyGameObject.GetComponent<Text>().text =
+                    "+ $" + MoneyConverter.ConvertNumber(moneyReward);
+            }
+
+            if (oreReward.Count != 0)
+                foreach (var element in oreReward)
+                {
+                    GameObject instantiatedGameObject = Instantiate(_textGameObject, transform);
+                    instantiatedGameObject.GetComponent<Text>().text = "+" + element.Value + " " + element.Key.Name;
+                }
+        }
+
+        Instantiate(_textGameObject, transform); //empty filler
     }
 
-    public void DestroyIdleRewardWindow()
-    {
-        Destroy(gameObject);
-    }
-
-    public static double IdleReward(int idleTime)
+    public static KeyValuePair<double, Dictionary<Ore, int>> IdleReward(int idleTime)
     {
         var instance = GameController.Instance;
-        var maxlevel = instance.GetMaxLevel();
 
-        double maxRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, instance.GetMaxLevel());
-        double currentRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, instance.GetLevel());
+        double maxRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias,
+            BasicEconomyValues.HealthExponentialMultiplier, instance.GetMaxLevel());
+        double currentRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth,
+            BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, instance.GetLevel());
 
         instance.CalculateAutoStrength();
-        double avgTimeToDestroyMaxRock = maxRockHealth / instance.GetAutoStrength() + BasicEconomyValues.RockFallingTime;
-        double avgTimeToDestroyCurrentRock = currentRockHealth / instance.GetAutoStrength() + BasicEconomyValues.RockFallingTime;
+        double miningSpeed = instance.GetMiningSpeed();
+
+        double avgTimeToDestroyMaxRock = maxRockHealth * miningSpeed / instance.GetAutoStrength() +
+                                         BasicEconomyValues.RockFallingTime;
+        double avgTimeToDestroyCurrentRock = currentRockHealth * miningSpeed / instance.GetAutoStrength() +
+                                             BasicEconomyValues.RockFallingTime;
 
         int maxRocksDestroyed = Convert.ToInt32(idleTime / avgTimeToDestroyMaxRock);
         int currentRocksDestroyed = Convert.ToInt32(idleTime / avgTimeToDestroyCurrentRock);
 
         double moneyToBeAdded = BasicEconomyValues.MoneyReward(instance.GetMaxLevel()) * maxRocksDestroyed;
-
         instance.AddMoney(moneyToBeAdded);
 
         OreDropper dropperScript = GameObject.FindGameObjectWithTag("Dropper").GetComponent<OreDropper>();
-        dropperScript.DropOre(currentRocksDestroyed);
+        Dictionary<Ore, int> droppedOres = dropperScript.DropOre(currentRocksDestroyed);
 
-        return moneyToBeAdded;
+        return new KeyValuePair<double, Dictionary<Ore, int>>(moneyToBeAdded, droppedOres);
     }
 }

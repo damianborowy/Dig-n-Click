@@ -8,12 +8,12 @@ public class EquipmentController : MonoBehaviour
 {
     public static EquipmentController Instance;
     public int Capacity;
-    public RectTransform Canvas;
+    public RectTransform TextSpawn;
     public GameObject DropText;
     public float TextSpawnRadius;
     public SortedList<Ore, int> Items = new SortedList<Ore, int>(new OreCompareByValue());
 
-    private List<GameObject> _equipmentSlots = new List<GameObject>();
+    private List<SlotController> _equipmentSlots = new List<SlotController>();
 
     private void Awake()
     {
@@ -33,7 +33,7 @@ public class EquipmentController : MonoBehaviour
         UpdateItemSlots();
     }
 
-    public void AddItemSlot(GameObject slot)
+    public void AddItemSlot(SlotController slot)
     {
         _equipmentSlots.Add(slot);
     }
@@ -43,51 +43,45 @@ public class EquipmentController : MonoBehaviour
         if (oreToUpdate != null)
         {
             int oreIndex = Items.IndexOfKey(oreToUpdate);
-            GameObject amountInSlot = _equipmentSlots[oreIndex].transform.Find("Amount").gameObject;
-            Text itemAmount = amountInSlot.GetComponent<Text>();
-            itemAmount.text = Items.ElementAt(oreIndex).Value.ToString();
-            Debug.Log("Slot updated (oreToUpdate!=null)");
+            int amount = Items.ElementAt(oreIndex).Value;
+            _equipmentSlots[oreIndex].UpdateOre(amount);
         }
         else
-            for (int i = 0; i < Items.Count; ++i) //full update
+        {
+            for (int i = 0; i < Items.Count; ++i) //full update for filled slots
             {
-                GameObject itemInSlot = _equipmentSlots[i].transform.Find("Item").gameObject;
-                Image itemImage = itemInSlot.GetComponent<Image>();
-                itemImage.sprite = Items.ElementAt(i).Key.OreSprite;
-                GameObject amountInSlot = _equipmentSlots[i].transform.Find("Amount").gameObject;
-                Text itemAmount = amountInSlot.GetComponent<Text>();
-                itemAmount.text = Items.ElementAt(i).Value.ToString();
-                Debug.Log("Item slot updated");
+                Ore ore = Items.ElementAt(i).Key;
+                int amount = Items.ElementAt(i).Value;
+                _equipmentSlots[i].AssignOre(ore, amount);
             }
+
+            for (int i = Items.Count; i < _equipmentSlots.Count; ++i) //update for empty slots
+            {
+                if (_equipmentSlots[i].IsEmpty())
+                    break;
+                _equipmentSlots[i].ClearSlot();
+            }
+        }
     }
 
     public bool AddItem(Ore itemToAdd, int amount = 1)
     {
         if (Items.ContainsKey(itemToAdd))
         {
-            Debug.Log("Adding " + itemToAdd.Name + " in amount of " + amount);
-            InstantiateDropText(itemToAdd, amount);
             Items[itemToAdd] += amount;
             UpdateItemSlots(itemToAdd);
-            Debug.Log("New amount is: " + Items[itemToAdd]);
             return true;
         }
 
         if (IsFull())
-        {
-            Debug.Log("Inventory is full");
-            InstantiateInventoryIsFullText();
             return false;
-        }
-
-        Debug.Log("Adding new " + itemToAdd.Name + " in amount of " + amount);
-        InstantiateDropText(itemToAdd, amount);
+        
         Items.Add(itemToAdd, amount);
         UpdateItemSlots();
         return true;
     }
 
-    public bool RemoveItem(Ore itemToRemove, int amount = 1)
+    public bool RemoveItem(Ore itemToRemove, int amount)
     {
         if (IsEmpty())
         {
@@ -123,28 +117,6 @@ public class EquipmentController : MonoBehaviour
         }
 
         return true;
-    }
-
-    private void InstantiateDropText(Ore dropedOre, int amount = 1)
-    {
-        GameObject instantiatedTextGameObject = Instantiate(DropText, Canvas);
-        Text text = instantiatedTextGameObject.GetComponent<Text>();
-        Vector3 randomPosition = Random.insideUnitSphere * TextSpawnRadius;
-        text.rectTransform.position = new Vector3(Canvas.position.x + randomPosition.x,
-            Canvas.position.y + randomPosition.y, text.transform.position.z);
-        text.text = amount.ToString("+#;-#;0") + " " + dropedOre.Name;
-        text.color = dropedOre.DropTextColor;
-    }
-
-    private void InstantiateInventoryIsFullText()
-    {
-        GameObject instantiatedTextGameObject = Instantiate(DropText, Canvas);
-        Text text = instantiatedTextGameObject.GetComponent<Text>();
-        Vector3 randomPosition = Random.insideUnitSphere * TextSpawnRadius;
-        text.rectTransform.position = new Vector3(Canvas.position.x + randomPosition.x,
-            Canvas.position.y + randomPosition.y, text.transform.position.z);
-        text.text = "Inventory is full!";
-        text.color = Color.red;
     }
 
     private bool IsFull()

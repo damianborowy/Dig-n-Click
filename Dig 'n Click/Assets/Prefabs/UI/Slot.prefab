@@ -38,6 +38,7 @@ GameObject:
   - component: {fileID: 224646951450596048}
   - component: {fileID: 222583749138674342}
   - component: {fileID: 114555816394008728}
+  - component: {fileID: 114693870820286688}
   m_Layer: 5
   m_Name: Slot
   m_TagString: Untagged
@@ -83,7 +84,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: 89c57d2418135604a8a55b020a97245d, type: 3}
-  m_Type: 0
+  m_Type: 1
   m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
@@ -109,7 +110,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 20236715aebbd2d449938b622f2a2ef3, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -117,6 +118,18 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114693870820286688
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1591973388896916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e3ba6d2e5ebe7c4fae6a1e57eddbeea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DragTolerance: 0.1
 --- !u!114 &114882455479762246
 MonoBehaviour:
   m_ObjectHideFlags: 1

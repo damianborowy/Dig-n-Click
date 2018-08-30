@@ -25,6 +25,11 @@ public class BackgroundScroller : MonoBehaviour
         if (_isBackgroundScrolling) return;
 
         _isBackgroundScrolling = true;
+
+        GameObject[] particles = GameObject.FindGameObjectsWithTag("Particles");
+        foreach (var element in particles)
+            Destroy(element);
+
         if (direction == Direction.Up)
             StartCoroutine(ScrollUp());
         else if (direction == Direction.Down)

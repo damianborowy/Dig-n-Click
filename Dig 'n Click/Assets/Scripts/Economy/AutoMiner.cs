@@ -1,30 +1,45 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class AutoMiner : MonoBehaviour
 {
+    public static AutoMiner Instance;
+
     private RockController _rc;
 
-    private void Start()
+    private void Awake()
     {
-        _rc = GetRockController();
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void StartMiner()
+    {
         StartCoroutine(AutoMine());
+    }
+
+    public void StopMiner()
+    {
+        StopAllCoroutines();
     }
 
     private IEnumerator AutoMine()
     {
+        yield return new WaitForSeconds(0.45f);
+        _rc = GetRockController();
+
         while (true)
         {
-            yield return new WaitForSeconds(1);
-
-            if (_rc == null)
-            {
-                _rc = GetRockController();
-            }
-            else
-            {
-                _rc.Hit(GameController.Instance.GetAutoStrength());
-            }
+            _rc.Hit(GameController.Instance.GetAutoStrength());
+            yield return new WaitForSeconds((float) GameController.Instance.GetMiningSpeed());
         }
     }
 
