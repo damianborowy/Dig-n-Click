@@ -8,9 +8,7 @@ public class EquipmentController : MonoBehaviour
 {
     public static EquipmentController Instance;
     public int Capacity;
-    public RectTransform TextSpawn;
-    public GameObject DropText;
-    public float TextSpawnRadius;
+    public SellButtonController SellButton;
     public SortedList<Ore, int> Items = new SortedList<Ore, int>(new OreCompareByValue());
 
     private List<SlotController> _equipmentSlots = new List<SlotController>();
@@ -55,6 +53,9 @@ public class EquipmentController : MonoBehaviour
                 _equipmentSlots[i].AssignOre(ore, amount);
             }
 
+            if (SellButton.isActiveAndEnabled) //sell button position update
+                    SellButton.UpdatePosition(_equipmentSlots);
+
             for (int i = Items.Count; i < _equipmentSlots.Count; ++i) //update for empty slots
             {
                 if (_equipmentSlots[i].IsEmpty())
@@ -66,6 +67,9 @@ public class EquipmentController : MonoBehaviour
 
     public bool AddItem(Ore itemToAdd, int amount = 1)
     {
+        if (amount <= 0)
+            return false;
+
         if (Items.ContainsKey(itemToAdd))
         {
             Items[itemToAdd] += amount;
@@ -75,7 +79,7 @@ public class EquipmentController : MonoBehaviour
 
         if (IsFull())
             return false;
-        
+
         Items.Add(itemToAdd, amount);
         UpdateItemSlots();
         return true;
@@ -83,35 +87,26 @@ public class EquipmentController : MonoBehaviour
 
     public bool RemoveItem(Ore itemToRemove, int amount)
     {
-        if (IsEmpty())
-        {
-            Debug.Log("Inventory is empty");
+        if (amount <= 0)
             return false;
-        }
+
+        if (IsEmpty())
+            return false;
 
         if (!Items.ContainsKey(itemToRemove))
-        {
-            Debug.Log("Item to remove missing");
             return false;
-        }
 
         int newAmountOfItems = Items[itemToRemove] - amount;
         if (newAmountOfItems < 0)
-        {
-            Debug.Log("New amount is negative");
             return false;
-        }
 
         if (newAmountOfItems > 0)
         {
-            Debug.Log("Removing " + itemToRemove.Name + " in amount of " + amount);
             Items[itemToRemove] = newAmountOfItems;
             UpdateItemSlots(itemToRemove);
-            Debug.Log("New amount is: " + Items[itemToRemove]);
         }
         else
         {
-            Debug.Log("Amount of " + itemToRemove.Name + " is 0, removing from inventory");
             Items.Remove(itemToRemove);
             UpdateItemSlots();
         }

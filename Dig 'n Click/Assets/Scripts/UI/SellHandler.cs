@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class SellHandler : MonoBehaviour
 {
+    public AudioClip SellSound;
+
     private Ore _oreToSell;
     private int _amountSet;
 
@@ -26,6 +28,9 @@ public class SellHandler : MonoBehaviour
     public void OnClick()
     {
         if (EquipmentController.Instance.RemoveItem(_oreToSell, _amountSet))
+        {
+            AudioController.Instance.PlayBuySellSound(SellSound);
             GameController.Instance.AddMoney(_oreToSell.Value * _amountSet);
+        }
     }
 }

@@ -37,6 +37,11 @@ public class SlotController : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         itemAmount.text = amount.ToString();
     }
 
+    public Ore GetAssignedOre()
+    {
+        return _assignedOre;
+    }
+
     public void UpdateOre(int amount)
     {
         GameObject amountInSlot = transform.Find("Amount").gameObject;

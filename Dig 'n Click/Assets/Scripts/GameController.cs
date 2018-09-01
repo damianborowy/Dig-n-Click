@@ -15,18 +15,19 @@ public class GameController : MonoBehaviour
     public GameObject[] Rocks;
     public LevelChanger ArrowDownLevelChanger;
     public bool EnableSaving = true;
-    public static readonly DateTime EpochTimeStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    public static readonly DateTime EpochTimeStart = 
+        new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private double _money;
     private int _maxLevel = 1;
     private int _level = 1;
     private double _strength = 1;
     private double _autoStrength = 1;
-    private double _miningSpeed = 1;
+    private double _miningSpeed = 1.05;
     private double _nextLevelCost;
     private Vector3 _rockSpawn;
     private string _saveFilePath;
-    private int _idleTime = (int) (DateTime.UtcNow - EpochTimeStart).TotalSeconds; //non-intuitive naming, cast to int
+    private double _lastTime = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
     private bool _firstLaunch = true;
     private bool _tutorialCompleted = false;
     private GameObject[] _upgradesList;
@@ -34,14 +35,16 @@ public class GameController : MonoBehaviour
     [Serializable]
     private class PlayerData
     {
-        public int MaxLevel, Level, Time;
+        public int MaxLevel, Level;
+        public double Time;
         public double Money;
         public bool FirstLaunch, TutorialCompleted;
         public Dictionary<string, int> Items;
         public Dictionary<Upgrade, int> Upgrades;
     }
 
-    //Unity----------------------------------------------------------------------------------------
+    //Unity -----------------------------------------------------------------------------------
+
     private void Awake()
     {
         if (Instance == null)
@@ -76,14 +79,14 @@ public class GameController : MonoBehaviour
         CalculateMiningSpeed();
     }
 
-    private void OnApplicationFocus(bool hasFocus) //change to OnApplicationPause
+    private void OnApplicationPause(bool pauseStatus)
     {
-        if (!hasFocus)
-            _idleTime = (int) (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
+        if (pauseStatus)
+            _lastTime = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
     }
 
+    //Launch ----------------------------------------------------------------------------------
 
-    //Launch---------------------------------------------------------------------------------------
     public bool IsFirstLaunch()
     {
         return _firstLaunch;
@@ -94,7 +97,8 @@ public class GameController : MonoBehaviour
         _firstLaunch = false;
     }
 
-    //Tutorial-------------------------------------------------------------------------------------
+    //Tutorial --------------------------------------------------------------------------------
+
     public bool IsTutorialCompleted()
     {
         return _tutorialCompleted;
@@ -106,7 +110,8 @@ public class GameController : MonoBehaviour
     }
 
 
-    //Money----------------------------------------------------------------------------------------
+    //Money -----------------------------------------------------------------------------------
+
     public double GetMoney()
     {
         return _money;
@@ -131,7 +136,8 @@ public class GameController : MonoBehaviour
         MoneyDisplay.text = "$" + MoneyConverter.ConvertNumber(_money);
     }
 
-    //Upgrades-------------------------------------------------------------------------------------
+    //Upgrades --------------------------------------------------------------------------------
+
     public void ToggleUpgradeButtons()
     {
         foreach (var slot in _upgradesList)
@@ -140,14 +146,23 @@ public class GameController : MonoBehaviour
         }
     }
 
-    //Idle time------------------------------------------------------------------------------------
-    public int GetIdleTime()
+    public void ToggleUpgradeSlots()
     {
-        return _idleTime;
+        foreach (var slot in _upgradesList)
+        {
+            slot.GetComponentInChildren<UpgradePanelHandler>().ToggleSlot();
+        }
     }
 
+    //IdleTime --------------------------------------------------------------------------------
 
-    //Rock-----------------------------------------------------------------------------------------
+    public double GetIdleTime()
+    {
+        return (DateTime.UtcNow - EpochTimeStart).TotalSeconds - _lastTime;
+    }
+
+    //Rock ------------------------------------------------------------------------------------
+
     private void SetRockSpawn()
     {
         double worldScreenHeight = Camera.main.orthographicSize * 2.0;
@@ -168,7 +183,8 @@ public class GameController : MonoBehaviour
         AutoMiner.Instance.StartMiner();
     }
 
-    //Mining power---------------------------------------------------------------------------------
+    //MiningPower -----------------------------------------------------------------------------
+
     public double GetMiningSpeed()
     {
         return _miningSpeed;
@@ -185,12 +201,12 @@ public class GameController : MonoBehaviour
 
         if (UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade.Upgrade2))
         {
-            SetMiningSpeed(1 - UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade2] *
+            SetMiningSpeed(1.05 - UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade2] *
                            UpgradesConsts.GetUpgradeValues(Upgrade.Upgrade2).Productivity);
         }
         else
         {
-            _miningSpeed = 1;
+            _miningSpeed = 1.05;
         }
 
         AutoMiner.Instance.StartMiner();
@@ -206,8 +222,7 @@ public class GameController : MonoBehaviour
         if (UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade.Upgrade1))
         {
             _strength = (UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade1] + 1) *
-                        UpgradesController.CalculateMultiplier(Upgrade.Upgrade1,
-                            UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade1]);
+                        UpgradesController.CalculateMultiplier(Upgrade.Upgrade1);
         }
         else
         {
@@ -234,8 +249,7 @@ public class GameController : MonoBehaviour
                 {
                     values = UpgradesConsts.GetUpgradeValues(pair.Key);
                     autoStrength += values.Productivity * UpgradesController.Instance.UpgradesDictionary[pair.Key] *
-                                    UpgradesController.CalculateMultiplier(pair.Key,
-                                        UpgradesController.Instance.UpgradesDictionary[pair.Key]);
+                                    UpgradesController.CalculateMultiplier(pair.Key);
                 }
             }
         }
@@ -245,10 +259,12 @@ public class GameController : MonoBehaviour
 
     public void SetMiningPowerText()
     {
-        MiningPowerDisplay.text = MoneyConverter.ConvertNumber(GetAutoStrength() / GetMiningSpeed()) + " DPS";
+        MiningPowerDisplay.text =
+            MoneyConverter.ConvertNumber(Math.Round(GetAutoStrength() / GetMiningSpeed())) + " DPS";
     }
 
-    //Level----------------------------------------------------------------------------------------
+    //Level -----------------------------------------------------------------------------------
+
     public int GetLevel()
     {
         return _level;
@@ -294,7 +310,8 @@ public class GameController : MonoBehaviour
         LevelDisplay.text = "Level: " + _level;
     }
 
-    //Save and load--------------------------------------------------------------------------------
+    //Save & Load -----------------------------------------------------------------------------
+
     public void Save()
     {
         var bf = new BinaryFormatter();
@@ -304,7 +321,7 @@ public class GameController : MonoBehaviour
         data.MaxLevel = _maxLevel;
         data.Level = _level;
         data.Money = _money;
-        data.Time = (int) (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
+        data.Time = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
         data.Items = SerializableOre.ConvertToSerializable(EquipmentController.Instance.Items);
         data.Upgrades = UpgradesController.Instance.UpgradesDictionary;
         data.TutorialCompleted = _tutorialCompleted;
@@ -327,7 +344,7 @@ public class GameController : MonoBehaviour
             _maxLevel = data.MaxLevel;
             _level = data.Level;
             _money = data.Money;
-            _idleTime = data.Time;
+            _lastTime = data.Time;
             _firstLaunch = data.FirstLaunch;
             _tutorialCompleted = data.TutorialCompleted;
             UpgradesController.Instance.UpgradesDictionary = data.Upgrades;

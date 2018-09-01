@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 public class RockController : MonoBehaviour, IPointerDownHandler
 {
@@ -11,6 +12,8 @@ public class RockController : MonoBehaviour, IPointerDownHandler
     public GameObject DestroyParticles;
     public double Health;
     public double MaxHealth;
+    public AudioClip[] PickaxeSound;
+    public AudioClip[] DestroySound;
 
     private Slider _slider;
     private Text _hpLeftDisplay;
@@ -20,6 +23,15 @@ public class RockController : MonoBehaviour, IPointerDownHandler
     private OreDropper _dropper;
     private bool _isDestroyed;
 
+    private void Awake()
+    {
+        _rigidbody2D = GetComponent<Rigidbody2D>();
+        _rigidbody2D.velocity = new Vector2(0, -InitialFallingSpeed);
+
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _spriteRenderer.sprite = Sprites[0];
+    }
+
     private void Start()
     {
         _isDestroyed = false;
@@ -28,13 +40,7 @@ public class RockController : MonoBehaviour, IPointerDownHandler
         Health = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, level);
         MaxHealth = Health;
         _reward = BasicEconomyValues.MoneyReward(level);
-
-        _rigidbody2D = GetComponent<Rigidbody2D>();
-        _rigidbody2D.velocity = new Vector2(0, -InitialFallingSpeed);
-
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        _spriteRenderer.sprite = Sprites[0];
-
+        
         GameObject slider = GameObject.FindWithTag("Slider");
         if (slider != null)
             _slider = slider.GetComponent<Slider>();
@@ -67,6 +73,7 @@ public class RockController : MonoBehaviour, IPointerDownHandler
             Health = 0;
             UpdateSlider();
             Instantiate(DestroyParticles, transform.position, Quaternion.identity);
+            AudioController.Instance.PlayDestroySound(DestroySound[Random.Range(0, DestroySound.Length)]);
 
             _dropper.DropOre();
             GameController.Instance.AddMoney(_reward);
@@ -85,6 +92,7 @@ public class RockController : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        AudioController.Instance.PlayPickaxeSound(PickaxeSound[Random.Range(0, PickaxeSound.Length)]);
         Instantiate(HitParticles, eventData.pointerCurrentRaycast.worldPosition, Quaternion.identity);
         Hit(GameController.Instance.GetStrength());
     }

@@ -4,8 +4,8 @@ using UnityEngine;
 public static class UpgradesConsts {
 
     // Clicker
-    public const double Upgrade1BaseCost = 3;
-    public const float Upgrade1CostMultiplier = 1.07f;
+    public const double Upgrade1BaseCost = 5;
+    public const float Upgrade1CostMultiplier = 1.1f;
     public const double Upgrade1Productivity = 1;
 
     // Mining speed
@@ -14,9 +14,9 @@ public static class UpgradesConsts {
     public const double Upgrade2Productivity = 0.05;
 
     // Upgrade 3
-    public const double Upgrade3BaseCost = 20;
-    public const float Upgrade3CostMultiplier = 1.15f;
-    public const double Upgrade3Productivity = 20;
+    public const double Upgrade3BaseCost = 40;
+    public const float Upgrade3CostMultiplier = 1.13f;
+    public const double Upgrade3Productivity = 5;
 
     // Upgrade 4
     public const double Upgrade4BaseCost = 720;

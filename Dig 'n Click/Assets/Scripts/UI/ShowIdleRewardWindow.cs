@@ -10,6 +10,7 @@ public class ShowIdleRewardWindow : MonoBehaviour
     public int FontSize;
 
     private GameObject _textGameObject;
+    private bool _isInitialized;
 
     private void Start()
     {
@@ -19,11 +20,13 @@ public class ShowIdleRewardWindow : MonoBehaviour
         }
         else
             transform.localScale = Vector3.zero;
+
+        _isInitialized = true;
     }
 
-    private void OnApplicationFocus(bool hasFocus) //change to OnApplicationPause
+    private void OnApplicationPause(bool pauseStatus)
     {
-        if (hasFocus)
+        if (!pauseStatus && _isInitialized)
             CreateRewardWindow();
     }
 
@@ -47,11 +50,9 @@ public class ShowIdleRewardWindow : MonoBehaviour
         text.fontSize = FontSize;
         text.alignment = TextAnchor.MiddleCenter;
 
-        int idleTime = (int)(DateTime.UtcNow - GameController.EpochTimeStart).TotalSeconds -
-                       GameController.Instance.GetIdleTime();
+        double idleTime = GameController.Instance.GetIdleTime();
 
-        KeyValuePair<double, Dictionary<Ore, int>> rewardMoneyOres =
-            new KeyValuePair<double, Dictionary<Ore, int>>();
+        KeyValuePair<double, Dictionary<Ore, int>> rewardMoneyOres;
         if (idleTime > 0)
         {
             rewardMoneyOres = IdleReward(idleTime);
@@ -89,7 +90,7 @@ public class ShowIdleRewardWindow : MonoBehaviour
         Instantiate(_textGameObject, transform); //empty filler
     }
 
-    public static KeyValuePair<double, Dictionary<Ore, int>> IdleReward(int idleTime)
+    public static KeyValuePair<double, Dictionary<Ore, int>> IdleReward(double idleTime)
     {
         var instance = GameController.Instance;
 

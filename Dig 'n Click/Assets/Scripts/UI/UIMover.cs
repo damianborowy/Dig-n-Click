@@ -10,6 +10,8 @@ public class UIMover : MonoBehaviour
     public float MoveSpeed;
     public float ComparisonPrecisionExponent;
     public Direction MoveAnchor;
+    public AudioClip OpenWindowSound;
+    public AudioClip CloseWindowSound;
 
     private RectTransform _rectTransform;
     private RectTransform _parentRectTransform;
@@ -67,9 +69,15 @@ public class UIMover : MonoBehaviour
         gameObject.SetActive(true);
 
         if (_isInside)
+        {
+            AudioController.Instance.PlayCloseWindowSound(CloseWindowSound);
             StartCoroutine(MoveOutside());
+        }
         else
+        {
+            AudioController.Instance.PlayOpenWindowSound(OpenWindowSound);
             StartCoroutine(MoveInside());
+        }
     }
 
     public bool IsUIMoving()

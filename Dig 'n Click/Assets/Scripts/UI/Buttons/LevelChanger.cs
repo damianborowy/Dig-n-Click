@@ -7,6 +7,9 @@ public class LevelChanger : MonoBehaviour
 {
     public BackgroundScroller Scroller;
     public Direction ChangeDirection;
+    public AudioClip MoveUpSound;
+    public AudioClip MoveDownSound;
+    public AudioClip BuyLevelSound;
 
     private Button _arrow;
     private bool _isPricetagHidden;
@@ -19,13 +22,20 @@ public class LevelChanger : MonoBehaviour
 
         if (ChangeDirection == Direction.Down && currentLevel < GameController.Instance.GetMaxLevel())
         {
+            AudioController.Instance.PlayLevelDownSound(MoveDownSound);
             ChangeLevel(++currentLevel);
         }
         else if (ChangeDirection == Direction.Down &&
                  GameController.Instance.GetNextLevelCost() <= GameController.Instance.GetMoney() && !_isPricetagHidden)
+        {
+            AudioController.Instance.PlayBuySellSound(BuyLevelSound);
             GameController.Instance.AddMaxLevel();
+        }
         else if (ChangeDirection == Direction.Up && currentLevel > 1)
+        {
+            AudioController.Instance.PlayLevelUpSound(MoveUpSound);
             ChangeLevel(--currentLevel);
+        }
     }
 
     public void UpdatePricetag() //only for down arrow

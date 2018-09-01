@@ -10,6 +10,7 @@ public class OreDropper : MonoBehaviour
     public GameObject DropText;
     public float TextSpawnRadius;
     public float DropChance;
+    public AudioClip DropSound;
 
     private Dictionary<Ore, int> _droppedOres;
 
@@ -57,7 +58,10 @@ public class OreDropper : MonoBehaviour
         foreach (var element in _droppedOres)
         {
             if (EquipmentController.Instance.AddItem(element.Key, element.Value))
+            {
+                AudioController.Instance.PlayOredropSound(DropSound);
                 InstantiateDropText(element.Key, element.Value);
+            }
             else
             {
                 notAddedToInventory.Add(element.Key);

@@ -26,6 +26,7 @@ public class UpgradesController : MonoBehaviour
     public void BuyUpgrade(Upgrade upgrade)
     {
         UpgradesDictionary[upgrade]++;
+        GameController.Instance.ToggleUpgradeSlots();
     }
 
     private void CreateUpgradeMultipliersDictionary()
@@ -40,7 +41,7 @@ public class UpgradesController : MonoBehaviour
             }},
             {Upgrade.Upgrade2, new Dictionary<int, double>
             {
-                {19, 1}
+                {20, 1}
             }},
             {Upgrade.Upgrade3, new Dictionary<int, double>
             {
@@ -58,7 +59,7 @@ public class UpgradesController : MonoBehaviour
             {
                 {25, 2},
                 {50, 2},
-                {100, 2},
+                {100, 2}
             }},
             {Upgrade.Upgrade6, new Dictionary<int, double>
             {
@@ -66,21 +67,57 @@ public class UpgradesController : MonoBehaviour
                 {50, 2},
                 {100, 2}
             }},
+            {Upgrade.Upgrade7, new Dictionary<int, double>
+            {
+                {25, 1.5},
+                {50, 2},
+                {100, 2}
+            }}
         };
     }
 
-    public static double CalculateMultiplier(Upgrade upgrade, int level)
+    public static double CalculateMultiplier(Upgrade upgrade)
     {
+        if (!Instance.UpgradesMultipliers.ContainsKey(upgrade)) return 1;
+        
         double multiplier = 1;
-
-        if (!Instance.UpgradesMultipliers.ContainsKey(upgrade)) return multiplier;
+        int level = Instance.UpgradesDictionary[upgrade];
 
         foreach (var i in Instance.UpgradesMultipliers[upgrade])
         {
-            if(level >= i.Key)
+            if (level >= i.Key)
                 multiplier *= i.Value;
         }
 
         return multiplier;
+    }
+
+    public static double GetClosestMultiplier(Upgrade upgrade)
+    {
+        if (!Instance.UpgradesDictionary.ContainsKey(upgrade)) return 1;
+
+        double multiplier = 1;
+        int level = Instance.UpgradesDictionary[upgrade];
+
+        foreach (var i in Instance.UpgradesMultipliers[upgrade])
+        {
+            if (level < i.Key)
+                return i.Value;
+        }
+
+        return multiplier;
+    }
+
+    public static double CalculateUpgradeProductivity(Upgrade upgrade)
+    {
+        if (!Instance.UpgradesDictionary.ContainsKey(upgrade)) return 0;
+
+        int level = Instance.UpgradesDictionary[upgrade];
+        double multiplier = CalculateMultiplier(upgrade);
+        double productivity = UpgradesConsts.GetUpgradeValues(upgrade).Productivity;
+
+        productivity *= level * multiplier;
+
+        return productivity;
     }
 }

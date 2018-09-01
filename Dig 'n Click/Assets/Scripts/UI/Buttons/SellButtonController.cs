@@ -52,6 +52,26 @@ public class SellButtonController : MonoBehaviour
         }
     }
 
+    private SlotController GetAssignedSlot()
+    {
+        return _rectTransform.parent.gameObject.GetComponent<SlotController>();
+    }
+
+    public void UpdatePosition(List<SlotController> slots)
+    {
+        if (GetAssignedSlot() == null) return;
+        if (GetAssignedSlot().GetAssignedOre() == _assignedOre) return;
+
+        foreach (var element in slots)
+        {
+            if (element.GetAssignedOre() == _assignedOre)
+            {
+                SetParent(element.gameObject.GetComponent<RectTransform>());
+                break;
+            }
+        }
+    }
+
     public void Clear()
     {
         _assignedOre = null;
