@@ -7,6 +7,9 @@ public class AudioController : MonoBehaviour
     public static AudioController Instance;
 
     private AudioSource[] _effects;
+    private AudioSource _music;
+    private float[] _effectsVolume = new float[9];
+    private float _musicVolume;
 
     private void Awake()
     {
@@ -20,6 +23,27 @@ public class AudioController : MonoBehaviour
         }
 
         _effects = transform.GetChild(0).gameObject.GetComponents<AudioSource>();
+        _music = transform.GetChild(1).gameObject.GetComponent<AudioSource>();
+
+        for (int i = 0; i < 9; ++i)
+        {
+            _effectsVolume[i] = _effects[i].volume;
+        }
+
+        _musicVolume = _music.volume;
+    }
+
+    public void ChangeMusicVolume(float value)
+    {
+        _music.volume = _musicVolume * value;
+    }
+
+    public void ChangeEffectsVolume(float value)
+    {
+        for(int i = 0; i<9; ++i)
+        {
+            _effects[i].volume = _effectsVolume[i] * value;
+        }
     }
 
     public void PlayPickaxeSound(AudioClip audioClip)

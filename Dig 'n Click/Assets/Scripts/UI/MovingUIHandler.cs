@@ -9,11 +9,13 @@ public class MovingUIHandler : MonoBehaviour
 {
     public UIMover Equipment;
     public UIMover Upgrades;
+    public UIMover Settings;
 
     public enum Type
     {
         Equipment,
-        Upgrades
+        Upgrades,
+        Settings
     }
 
     private bool _isElementInside;
@@ -26,7 +28,7 @@ public class MovingUIHandler : MonoBehaviour
 
     public void Move(Type type)
     {
-        if (Equipment.IsUIMoving() || Upgrades.IsUIMoving()) return;
+        if (Equipment.IsUIMoving() || Upgrades.IsUIMoving() || Settings.IsUIMoving()) return;
 
         UIMover target;
         switch (type)
@@ -36,6 +38,9 @@ public class MovingUIHandler : MonoBehaviour
                 break;
             case Type.Upgrades:
                 target = Upgrades;
+                break;
+            case Type.Settings:
+                target = Settings;
                 break;
             default:
                 throw new InvalidEnumArgumentException();

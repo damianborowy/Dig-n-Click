@@ -14,15 +14,17 @@ public class GameController : MonoBehaviour
     public Text MiningPowerDisplay;
     public GameObject[] Rocks;
     public LevelChanger ArrowDownLevelChanger;
+    public ProbabilitesHandler ProbabilitiesUI;
     public bool EnableSaving = true;
-    public static readonly DateTime EpochTimeStart = 
+
+    public static readonly DateTime EpochTimeStart =
         new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private double _money;
     private int _maxLevel = 1;
     private int _level = 1;
     private double _strength = 1;
-    private double _autoStrength = 1;
+    private double _autoStrength = 0;
     private double _miningSpeed = 1.05;
     private double _nextLevelCost;
     private Vector3 _rockSpawn;
@@ -238,7 +240,7 @@ public class GameController : MonoBehaviour
 
     public void CalculateAutoStrength()
     {
-        double autoStrength = 1;
+        double autoStrength = 0;
         UpgradesConsts.UpgradeValues values;
 
         if (UpgradesController.Instance.UpgradesDictionary.Count != 0)
@@ -274,6 +276,7 @@ public class GameController : MonoBehaviour
     {
         _level = level;
         SetLevelText();
+        ProbabilitiesUI.UpdateProbabilities();
         ArrowDownLevelChanger.UpdatePricetag();
     }
 
@@ -307,7 +310,7 @@ public class GameController : MonoBehaviour
 
     private void SetLevelText()
     {
-        LevelDisplay.text = "Level: " + _level;
+        LevelDisplay.text = _level.ToString();
     }
 
     //Save & Load -----------------------------------------------------------------------------

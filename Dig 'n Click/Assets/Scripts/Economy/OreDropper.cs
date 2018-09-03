@@ -11,42 +11,30 @@ public class OreDropper : MonoBehaviour
     public float TextSpawnRadius;
     public float DropChance;
     public AudioClip DropSound;
-
-    private Dictionary<Ore, int> _droppedOres;
-
+    
     public Dictionary<Ore, int> DropOre(int repeat = 1)
     {
-        var ores = OresList.Instance.Ores;
+        List<Ore> droppableOres = GetDroppableOres();
+        float droppableOresTotalWeight = GetTotalWeight(droppableOres);
 
-        List<Ore> dropableOres = new List<Ore>();
-        float dropableOresTotalWeight = 0;
-        foreach (var element in ores)
-        {
-            if (IsInRangeInclusive(GameController.Instance.GetLevel(), element.MinLevel, element.MaxLevel))
-            {
-                dropableOres.Add(element);
-                dropableOresTotalWeight += element.DropWeight;
-            }
-        }
-
-        _droppedOres = new Dictionary<Ore, int>();
-        if (dropableOres.Count <= 0) return _droppedOres;
+        Dictionary<Ore, int> droppedOres = new Dictionary<Ore, int>();
+        if (droppableOres.Count <= 0) return droppedOres;
 
         for (int i = 0; i < repeat; ++i)
         {
             if (Random.value > DropChance) continue;
 
-            float rand = Random.Range(0, dropableOresTotalWeight);
+            float rand = Random.Range(0, droppableOresTotalWeight);
             float workingWeight = 0;
-            foreach (var element in dropableOres)
+            foreach (var element in droppableOres)
             {
                 workingWeight += element.DropWeight;
                 if (rand <= workingWeight)
                 {
-                    if (_droppedOres.ContainsKey(element))
-                        ++_droppedOres[element];
+                    if (droppedOres.ContainsKey(element))
+                        ++droppedOres[element];
                     else
-                        _droppedOres.Add(element, 1);
+                        droppedOres.Add(element, 1);
 
                     break;
                 }
@@ -55,7 +43,7 @@ public class OreDropper : MonoBehaviour
 
         bool isInventoryFull = false;
         List<Ore> notAddedToInventory = new List<Ore>();
-        foreach (var element in _droppedOres)
+        foreach (var element in droppedOres)
         {
             if (EquipmentController.Instance.AddItem(element.Key, element.Value))
             {
@@ -69,13 +57,35 @@ public class OreDropper : MonoBehaviour
             }
         }
 
-        if(isInventoryFull)
+        if (isInventoryFull)
             InstantiateInventoryIsFullText();
-        
-        foreach (var element in notAddedToInventory)
-            _droppedOres.Remove(element);
 
-        return _droppedOres;
+        foreach (var element in notAddedToInventory)
+            droppedOres.Remove(element);
+
+        return droppedOres;
+    }
+
+    public List<Ore> GetDroppableOres()
+    {
+        var ores = OresList.Instance.Ores;
+
+        List<Ore> dropableOres = new List<Ore>();
+
+        foreach (var element in ores)
+            if (IsInRangeInclusive(GameController.Instance.GetLevel(), element.MinLevel, element.MaxLevel))
+                dropableOres.Add(element);
+
+        return dropableOres;
+    }
+
+    public static float GetTotalWeight(List<Ore> ores)
+    {
+        float dropableOresTotalWeight = 0;
+        foreach (var element in ores)
+            dropableOresTotalWeight += element.DropWeight;
+
+        return dropableOresTotalWeight;
     }
 
     private void InstantiateDropText(Ore dropedOre, int amount = 1)
@@ -102,7 +112,7 @@ public class OreDropper : MonoBehaviour
         return text;
     }
 
-    private bool IsInRangeInclusive(float value, float rangeMin, float rangeMax)
+    private static bool IsInRangeInclusive(float value, float rangeMin, float rangeMax)
     {
         return rangeMin <= value && value <= rangeMax;
     }

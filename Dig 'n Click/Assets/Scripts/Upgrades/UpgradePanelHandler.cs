@@ -131,7 +131,6 @@ public class UpgradePanelHandler : MonoBehaviour
             controller.UpgradesDictionary.Add(Upgrade, 0);
         }
 
-        Debug.Log("Level of " + Upgrade + " is " + controller.UpgradesDictionary[Upgrade]);
         ToggleButtonFade();
         UpdateSlider();
         GameController.Instance.SetMiningPowerText();

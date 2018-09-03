@@ -6,7 +6,7 @@ using UnityEngine;
 public class MoneyConverter
 {
     public enum Type {Scientific, Normal, Simple}
-    public static Type _type = Type.Normal;
+    public static Type Notation = Type.Normal;
 
     private static Dictionary<int, string> _normalDictionary;
     private static Dictionary<int, string> _simpleDictionary;
@@ -46,6 +46,11 @@ public class MoneyConverter
         };
     }
 
+    public static void ChangeNotation(Type targetNotation)
+    {
+        Notation = targetNotation;
+    }
+
     public static string ConvertNumber(double value)
     {
         if (_normalDictionary == null || _simpleDictionary == null)
@@ -56,12 +61,12 @@ public class MoneyConverter
             int exponent = (int)Math.Floor(Math.Log10(value));
             double mantissa = Math.Round(value / Math.Pow(10, exponent), 3);
 
-            if (_type.Equals(Type.Scientific))
+            if (Notation.Equals(Type.Scientific))
             {
                 return ScientificNotation(mantissa, exponent);
             }
 
-            if (_type.Equals(Type.Normal) || _type.Equals(Type.Simple))
+            if (Notation.Equals(Type.Normal) || Notation.Equals(Type.Simple))
             {
                 return NormalNotation(mantissa, exponent);
             }
@@ -116,11 +121,11 @@ public class MoneyConverter
 
         stringBuilder.Append(newMantissa + " ");
 
-        if (_type.Equals(Type.Normal))
+        if (Notation.Equals(Type.Normal))
         {
             stringBuilder.Append(_normalDictionary[exponent]);
         }
-        else if (_type.Equals(Type.Simple))
+        else if (Notation.Equals(Type.Simple))
         {
             stringBuilder.Append(_simpleDictionary[exponent]);
         }
