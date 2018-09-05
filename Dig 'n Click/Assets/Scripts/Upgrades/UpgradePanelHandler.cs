@@ -93,43 +93,24 @@ public class UpgradePanelHandler : MonoBehaviour
 
     public void CalculateNextUpgradeCost()
     {
-        if (UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade.Upgrade2))
-        {
-            if (Upgrade.Equals(Upgrade.Upgrade2) &&
-                UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade2] >= 20)
-            {
-                _upgradeButton.GetComponentInChildren<Text>().text = "MAX";
-                UpgradeLevel.text = "Level MAX";
-                return;
-            }
-        }
-
-        int currentLevel;
         var controller = UpgradesController.Instance;
 
-        if (controller.UpgradesDictionary.ContainsKey(Upgrade))
+        if (Upgrade.Equals(Upgrade.Upgrade2) &&
+            UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade2] >= 20)
         {
-            currentLevel = controller.UpgradesDictionary[Upgrade];
+            _upgradeButton.GetComponentInChildren<Text>().text = "MAX";
+            UpgradeLevel.text = "Level MAX";
+            return;
         }
-        else
-        {
-            currentLevel = 0;
-            controller.UpgradesDictionary.Add(Upgrade, 0);
-        }
+
+        int currentLevel = controller.UpgradesDictionary[Upgrade];
 
         _nextUpgradeCost =
             UpgradesConsts.Exponent(_upgradeValues.BaseCost, _upgradeValues.CostMultiplier, currentLevel);
 
         _upgradeButton.GetComponentInChildren<Text>().text = "$" + MoneyConverter.ConvertNumber(_nextUpgradeCost);
 
-        if (controller.UpgradesDictionary.ContainsKey(Upgrade))
-        {
-            UpgradeLevel.text = "Level " + controller.UpgradesDictionary[Upgrade];
-        }
-        else
-        {
-            controller.UpgradesDictionary.Add(Upgrade, 0);
-        }
+        UpgradeLevel.text = "Level " + controller.UpgradesDictionary[Upgrade];
 
         ToggleButtonFade();
         UpdateSlider();
@@ -168,14 +149,7 @@ public class UpgradePanelHandler : MonoBehaviour
         if (Upgrade.Equals(Upgrade.Upgrade1) || Upgrade.Equals(Upgrade.Upgrade2) || Upgrade.Equals(Upgrade.Upgrade3) ||
             !UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade.Previous())) return;
 
-        if (UpgradesController.Instance.UpgradesDictionary[Upgrade.Previous()] == 0)
-        {
-            gameObject.SetActive(false);
-        }
-        else
-        {
-            gameObject.SetActive(true);
-        }
+        gameObject.SetActive(UpgradesController.Instance.UpgradesDictionary[Upgrade.Previous()] != 0);
     }
 
     public void OnClick()

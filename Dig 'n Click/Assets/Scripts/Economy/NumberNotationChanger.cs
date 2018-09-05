@@ -11,7 +11,12 @@ public class NumberNotationChanger : MonoBehaviour
 
     private void Start()
     {
-        Normal();
+        if (MoneyConverter.Notation.Equals(MoneyConverter.Type.Normal))
+            Normal();
+        else if (MoneyConverter.Notation.Equals(MoneyConverter.Type.Scientific))
+            Scientific();
+        else
+            Simple();
     }
 
     public void Normal()

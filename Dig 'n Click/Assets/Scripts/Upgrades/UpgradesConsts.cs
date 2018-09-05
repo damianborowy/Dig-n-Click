@@ -16,26 +16,26 @@ public static class UpgradesConsts {
     // Upgrade 3
     public const double Upgrade3BaseCost = 40;
     public const float Upgrade3CostMultiplier = 1.13f;
-    public const double Upgrade3Productivity = 5;
+    public const double Upgrade3Productivity = 12;
 
     // Upgrade 4
     public const double Upgrade4BaseCost = 720;
     public const float Upgrade4CostMultiplier = 1.14f;
-    public const double Upgrade4Productivity = 90;
+    public const double Upgrade4Productivity = 180;
 
     // Upgrade 5
     public const double Upgrade5BaseCost = 8640;
     public const float Upgrade5CostMultiplier = 1.13f;
-    public const double Upgrade5Productivity = 360;
+    public const double Upgrade5Productivity = 1060;
 
     // Upgrade 6
     public const double Upgrade6BaseCost = 103680;
     public const float Upgrade6CostMultiplier = 1.12f;
-    public const double Upgrade6Productivity = 2160;
+    public const double Upgrade6Productivity = 4560;
 
     // Upgrade 7
     public const double Upgrade7BaseCost = 1244160;
-    public const float Upgrade7CostMultiplier = 1.12f;
+    public const float Upgrade7CostMultiplier = 1.13f;
     public const double Upgrade7Productivity = 12960;
 
     public static double Exponent(double baseValue, float exponentialMultiplier, int level)

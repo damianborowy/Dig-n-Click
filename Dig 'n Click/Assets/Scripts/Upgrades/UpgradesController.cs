@@ -6,7 +6,7 @@ using UnityEngine;
 public class UpgradesController : MonoBehaviour
 {
     public static UpgradesController Instance;
-    public Dictionary<Upgrade, int> UpgradesDictionary = new Dictionary<Upgrade, int>();
+    public Dictionary<Upgrade, int> UpgradesDictionary;
     public Dictionary<Upgrade, Dictionary<int, double>> UpgradesMultipliers;
 
     private void Awake()
@@ -15,7 +15,6 @@ public class UpgradesController : MonoBehaviour
         {
             DontDestroyOnLoad(gameObject);
             Instance = this;
-            CreateUpgradeMultipliersDictionary();
         }
         else if (Instance != this)
         {
@@ -29,15 +28,51 @@ public class UpgradesController : MonoBehaviour
         GameController.Instance.ToggleUpgradeSlots();
     }
 
-    private void CreateUpgradeMultipliersDictionary()
+    public void OverrideUpgrades()
+    {
+        UpgradesDictionary = new Dictionary<Upgrade, int>();
+        Upgrade upgrade = Upgrade.Upgrade1;
+
+        try
+        {
+            while (upgrade.Next() != Upgrade.Upgrade1)
+            {
+                UpgradesDictionary.Add(upgrade, upgrade == Upgrade.Upgrade2 ? 1 : 0);
+                upgrade = upgrade.Next();
+            }
+        }
+        catch (ArgumentException) { }
+    }
+
+    public void CreateEmptyUpgradesDictionary()
+    {
+        if (UpgradesDictionary != null) return;
+
+        UpgradesDictionary = new Dictionary<Upgrade, int>();
+        Upgrade upgrade = Upgrade.Upgrade1;
+
+        try
+        {
+            while (upgrade.Next() != Upgrade.Upgrade1)
+            {
+                UpgradesDictionary.Add(upgrade, upgrade == Upgrade.Upgrade2 ? 1 : 0);
+                upgrade = upgrade.Next();
+            }
+        }
+        catch (ArgumentException) {}
+    }
+
+    public void CreateUpgradeMultipliersDictionary()
     {
         UpgradesMultipliers = new Dictionary<Upgrade, Dictionary<int, double>>
         {
             {Upgrade.Upgrade1, new Dictionary<int, double>
             {
-                {25, 3},
-                {50, 2},
-                {100, 10}
+                {25, 8},
+                {50, 8},
+                {100, 8},
+                {150, 4},
+                {200, 2.5}
             }},
             {Upgrade.Upgrade2, new Dictionary<int, double>
             {
@@ -45,21 +80,22 @@ public class UpgradesController : MonoBehaviour
             }},
             {Upgrade.Upgrade3, new Dictionary<int, double>
             {
-                {25, 5},
-                {50, 10},
-                {100, 10}
+                {25, 15},
+                {50, 5},
+                {100, 9},
+                {150, 2.5}
             }},
             {Upgrade.Upgrade4, new Dictionary<int, double>
             {
-                {25, 4},
-                {50, 8},
-                {100, 8}
+                {25, 5},
+                {50, 5},
+                {100, 5}
             }},
             {Upgrade.Upgrade5, new Dictionary<int, double>
             {
                 {25, 2},
-                {50, 2},
-                {100, 2}
+                {50, 4},
+                {100, 3}
             }},
             {Upgrade.Upgrade6, new Dictionary<int, double>
             {

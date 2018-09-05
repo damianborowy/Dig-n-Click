@@ -9,20 +9,34 @@ public class SellHandler : MonoBehaviour
 
     private Ore _oreToSell;
     private int _amountSet;
+    private int _maxAmount;
 
     public void Initialize(Ore ore, int maxAmount)
     {
         _oreToSell = ore;
         transform.GetChild(0).Find("Name").gameObject.GetComponent<Text>().text = ore.Name;
-        transform.GetChild(0).Find("Slider").gameObject.GetComponent<Slider>().maxValue = maxAmount;
+        _maxAmount = maxAmount;
+        transform.GetChild(0).Find("Slider").gameObject.GetComponent<Slider>().maxValue = _maxAmount;
     }
 
     public void OnValueChange(float amount)
     {
         _amountSet = (int) amount;
-        transform.GetChild(0).Find("Amount").gameObject.GetComponent<Text>().text = amount.ToString();
+        SetSellButton();
+    }
+
+    public void SetMax()
+    {
+        _amountSet = _maxAmount;
+        transform.GetChild(0).Find("Slider").gameObject.GetComponent<Slider>().value = _amountSet;
+        SetSellButton();
+    }
+
+    private void SetSellButton()
+    {
+        transform.GetChild(0).Find("Amount").gameObject.GetComponent<Text>().text = _amountSet.ToString();
         transform.GetChild(0).Find("SellButton").GetChild(0).gameObject.GetComponent<Text>().text =
-            "+$" + MoneyConverter.ConvertNumber(amount * _oreToSell.Value);
+            "+$" + MoneyConverter.ConvertNumber(_amountSet * _oreToSell.Value);
     }
 
     public void OnClick()

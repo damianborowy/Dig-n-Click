@@ -6,14 +6,14 @@ public static class BasicEconomyValues
 {
     // Ascending cost
     public const int BaseAscendCost = 5;
-    public const int AscendBias = 0;
+    public const int AscendBias = 5;
     public const float AscendExponentialMultiplier = 1.14f;
 
     // Rock values
-    public const int BaseHealth = 10;
-    public const int HealthBias = 29;
+    public const int BaseHealth = 30;
+    public const int HealthBias = 16;
     public const float HealthExponentialMultiplier = 1.15f;
-    public const float RockFallingTime = 0.3f;
+    public const float RockFallingTime = 0.45f;
 
     // Upgrade values
     public const int ToBeAdded = 0;

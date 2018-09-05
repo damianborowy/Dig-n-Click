@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AudioController : MonoBehaviour
 {
     public static AudioController Instance;
+    public Slider MusicVolumeSlider;
+    public Slider EffectsVolumeSlider;
 
     private AudioSource[] _effects;
     private AudioSource _music;
@@ -31,19 +34,35 @@ public class AudioController : MonoBehaviour
         }
 
         _musicVolume = _music.volume;
+
+        if (PlayerPrefs.HasKey("BG"))
+        {
+            float musicVolume = PlayerPrefs.GetFloat("BG");
+            MusicVolumeSlider.value = musicVolume;
+        }
+
+        if (PlayerPrefs.HasKey("FX"))
+        {
+            float effectsVolume = PlayerPrefs.GetFloat("FX");
+            EffectsVolumeSlider.value = effectsVolume;
+        }
     }
 
     public void ChangeMusicVolume(float value)
     {
         _music.volume = _musicVolume * value;
+
+        PlayerPrefs.SetFloat("BG", MusicVolumeSlider.value);
     }
 
     public void ChangeEffectsVolume(float value)
     {
-        for(int i = 0; i<9; ++i)
+        for (int i = 0; i<9; ++i)
         {
             _effects[i].volume = _effectsVolume[i] * value;
         }
+
+        PlayerPrefs.SetFloat("FX", EffectsVolumeSlider.value);
     }
 
     public void PlayPickaxeSound(AudioClip audioClip)

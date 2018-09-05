@@ -36,7 +36,7 @@ public class EquipmentController : MonoBehaviour
         _equipmentSlots.Add(slot);
     }
 
-    private void UpdateItemSlots(Ore oreToUpdate = null)
+    public void UpdateItemSlots(Ore oreToUpdate = null)
     {
         if (oreToUpdate != null)
         {

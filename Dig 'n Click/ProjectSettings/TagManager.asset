@@ -18,6 +18,7 @@ TagManager:
   - Particles
   - ExitButton
   - Text
+  - FadingText
   layers:
   - Default
   - TransparentFX

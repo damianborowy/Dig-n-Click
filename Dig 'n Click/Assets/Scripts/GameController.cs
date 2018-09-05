@@ -26,6 +26,9 @@ public class GameController : MonoBehaviour
     private double _strength = 1;
     private double _autoStrength = 0;
     private double _miningSpeed = 1.05;
+    private double _prestigeOre = 0;
+    private double _prestigeOreMultiplier = 0.1;
+    private double _moneySincePrestige;
     private double _nextLevelCost;
     private Vector3 _rockSpawn;
     private string _saveFilePath;
@@ -38,8 +41,8 @@ public class GameController : MonoBehaviour
     private class PlayerData
     {
         public int MaxLevel, Level;
-        public double Time;
-        public double Money;
+        public double Time, Money, PrestigeOre, PrestigeOreMultiplier;
+        public MoneyConverter.Type Notation;
         public bool FirstLaunch, TutorialCompleted;
         public Dictionary<string, int> Items;
         public Dictionary<Upgrade, int> Upgrades;
@@ -70,6 +73,8 @@ public class GameController : MonoBehaviour
             Load();
         }
 
+        UpgradesController.Instance.CreateEmptyUpgradesDictionary();
+        UpgradesController.Instance.CreateUpgradeMultipliersDictionary();
         SetMoneyText();
         SetLevelText();
         ArrowDownLevelChanger.UpdatePricetag();
@@ -85,6 +90,33 @@ public class GameController : MonoBehaviour
     {
         if (pauseStatus)
             _lastTime = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
+    }
+
+    //Prestige --------------------------------------------------------------------------------
+
+    public void AddPrestigeOre(double added)
+    {
+        _prestigeOre += added;
+    }
+
+    public double GetPrestigeOre()
+    {
+        return _prestigeOre;
+    }
+
+    public double GetMoneySincePrestige()
+    {
+        return _moneySincePrestige;
+    }
+
+    public double GetPrestigeOreMultiplier()
+    {
+        return _prestigeOreMultiplier;
+    }
+
+    public void SetPrestigeOreMultiplier(double multiplier)
+    {
+        _prestigeOreMultiplier = multiplier;
     }
 
     //Launch ----------------------------------------------------------------------------------
@@ -122,8 +154,10 @@ public class GameController : MonoBehaviour
     public void AddMoney(double added)
     {
         _money += added;
+        _moneySincePrestige += added;
         SetMoneyText();
         ToggleUpgradeButtons();
+        PrestigeController.Instance.UpdateRewardText();
     }
 
     public void SubMoney(double subbed)
@@ -131,6 +165,12 @@ public class GameController : MonoBehaviour
         _money -= subbed;
         SetMoneyText();
         ToggleUpgradeButtons();
+    }
+
+    public void SetMoneyToZero()
+    {
+        _money = 0;
+        _moneySincePrestige = 0;
     }
 
     private void SetMoneyText()
@@ -221,16 +261,9 @@ public class GameController : MonoBehaviour
 
     public void CalculateStrength()
     {
-        if (UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade.Upgrade1))
-        {
-            _strength = (UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade1] + 1) *
-                        UpgradesController.CalculateMultiplier(Upgrade.Upgrade1);
-        }
-        else
-        {
-            _strength = 1;
-            UpgradesController.Instance.UpgradesDictionary.Add(Upgrade.Upgrade1, 0);
-        }
+        _strength = (UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade1] + 1) *
+                    UpgradesController.CalculateMultiplier(Upgrade.Upgrade1);
+        _strength += _strength * _prestigeOre * _prestigeOreMultiplier;
     }
 
     public double GetAutoStrength()
@@ -241,20 +274,17 @@ public class GameController : MonoBehaviour
     public void CalculateAutoStrength()
     {
         double autoStrength = 0;
-        UpgradesConsts.UpgradeValues values;
 
-        if (UpgradesController.Instance.UpgradesDictionary.Count != 0)
+        foreach (var upgrade in UpgradesController.Instance.UpgradesDictionary.Keys)
         {
-            foreach (var pair in UpgradesController.Instance.UpgradesDictionary)
+            if (!upgrade.Equals(Upgrade.Upgrade1) && !upgrade.Equals(Upgrade.Upgrade2))
             {
-                if (!pair.Key.Equals(Upgrade.Upgrade1) && !pair.Key.Equals(Upgrade.Upgrade2))
-                {
-                    values = UpgradesConsts.GetUpgradeValues(pair.Key);
-                    autoStrength += values.Productivity * UpgradesController.Instance.UpgradesDictionary[pair.Key] *
-                                    UpgradesController.CalculateMultiplier(pair.Key);
-                }
+                if (UpgradesConsts.GetUpgradeValues(upgrade) != null)
+                    autoStrength += UpgradesConsts.GetUpgradeValues(upgrade).Productivity * UpgradesController.Instance.UpgradesDictionary[upgrade] * UpgradesController.CalculateMultiplier(upgrade);
             }
         }
+        
+        autoStrength += autoStrength * _prestigeOre * _prestigeOreMultiplier;
 
         _autoStrength = autoStrength;
     }
@@ -294,6 +324,11 @@ public class GameController : MonoBehaviour
         CalculateNextLevelCost();
     }
 
+    public void SetMaxLevel(int level)
+    {
+        _maxLevel = level;
+    }
+
     public double GetNextLevelCost()
     {
         return _nextLevelCost;
@@ -329,6 +364,9 @@ public class GameController : MonoBehaviour
         data.Upgrades = UpgradesController.Instance.UpgradesDictionary;
         data.TutorialCompleted = _tutorialCompleted;
         data.FirstLaunch = false;
+        data.Notation = MoneyConverter.Notation;
+        data.PrestigeOre = _prestigeOre;
+        data.PrestigeOreMultiplier = _prestigeOreMultiplier;
 
         bf.Serialize(file, data);
         file.Close();
@@ -351,6 +389,9 @@ public class GameController : MonoBehaviour
             _firstLaunch = data.FirstLaunch;
             _tutorialCompleted = data.TutorialCompleted;
             UpgradesController.Instance.UpgradesDictionary = data.Upgrades;
+            MoneyConverter.Notation = data.Notation;
+            _prestigeOre = data.PrestigeOre;
+            _prestigeOreMultiplier = data.PrestigeOreMultiplier;
 
             SerializableOre.DeserializeOres(data.Items);
         }

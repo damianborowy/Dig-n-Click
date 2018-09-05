@@ -19,7 +19,10 @@ public class ShowIdleRewardWindow : MonoBehaviour
             CreateRewardWindow();
         }
         else
+        {
+            GameController.Instance.NotFirstLaunch();
             transform.localScale = Vector3.zero;
+        }
 
         _isInitialized = true;
     }
