@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ShowIdleRewardWindow : MonoBehaviour
 {
-    public string FontName;
-    public int FontSize;
+    public TextMeshProUGUI Text;
 
-    private GameObject _textGameObject;
     private bool _isInitialized;
 
     private void Start()
@@ -43,16 +42,6 @@ public class ShowIdleRewardWindow : MonoBehaviour
             if (child.CompareTag("Text"))
                 Destroy(child.gameObject);
         }
-
-        _textGameObject = new GameObject("Text");
-        _textGameObject.tag = "Text";
-        RectTransform textRectTransform = _textGameObject.AddComponent<RectTransform>();
-        textRectTransform.sizeDelta = new Vector2(textRectTransform.rect.width, FontSize);
-        Text text = _textGameObject.AddComponent<Text>();
-        text.font = Font.CreateDynamicFontFromOSFont(FontName, FontSize);
-        text.fontSize = FontSize;
-        text.alignment = TextAnchor.MiddleCenter;
-
         double idleTime = GameController.Instance.GetIdleTime();
 
         KeyValuePair<double, Dictionary<Ore, int>> rewardMoneyOres;
@@ -69,28 +58,18 @@ public class ShowIdleRewardWindow : MonoBehaviour
         Dictionary<Ore, int> oreReward = rewardMoneyOres.Value;
 
         if (moneyReward < 1 && oreReward.Count == 0)
-        {
-            GameObject instantiatedGameObject = Instantiate(_textGameObject, transform);
-            instantiatedGameObject.GetComponent<Text>().text = "Nothing!";
-        }
+            Text.text += "Nothing!<br> ";
         else
         {
             if (moneyReward >= 1)
-            {
-                GameObject instantiatedMoneyGameObject = Instantiate(_textGameObject, transform);
-                instantiatedMoneyGameObject.GetComponent<Text>().text =
-                    "+ $" + MoneyConverter.ConvertNumber(moneyReward);
-            }
+                Text.text += "<color=#FFFF00><b>+$" + MoneyConverter.ConvertNumber(moneyReward) + "</b></color><br> ";
 
             if (oreReward.Count != 0)
                 foreach (var element in oreReward)
-                {
-                    GameObject instantiatedGameObject = Instantiate(_textGameObject, transform);
-                    instantiatedGameObject.GetComponent<Text>().text = "+" + element.Value + " " + element.Key.Name;
-                }
+                    Text.text += "<color=#" + ColorUtility.ToHtmlStringRGB(element.Key.DropTextColor) + ">+" + element.Value + " " + element.Key.Name + "</color><br> ";
         }
 
-        Instantiate(_textGameObject, transform); //empty filler
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
     public static KeyValuePair<double, Dictionary<Ore, int>> IdleReward(double idleTime)

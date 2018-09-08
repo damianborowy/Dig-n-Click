@@ -54,7 +54,6 @@ public class LevelChanger : MonoBehaviour
 
     private void ChangeLevel(int levelToMoveTo)
     {
-        AutoMiner.Instance.StopMiner();
         GameController.Instance.SetLevel(levelToMoveTo);
         StartCoroutine(Ascend());
     }

@@ -75,7 +75,7 @@ public class MoneyConverter
         }
 
         var stringBuilder = new StringBuilder();
-        string temp = value.ToString();
+        string temp = Math.Round(value).ToString();
         var stack = new Stack<char>();
 
         foreach (var element in temp)

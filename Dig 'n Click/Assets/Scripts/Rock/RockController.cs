@@ -15,6 +15,7 @@ public class RockController : MonoBehaviour, IPointerDownHandler
     public AudioClip[] PickaxeSound;
     public AudioClip[] DestroySound;
 
+    private bool _canBeHit;
     private Slider _slider;
     private Text _hpLeftDisplay;
     private double _reward;
@@ -52,8 +53,15 @@ public class RockController : MonoBehaviour, IPointerDownHandler
             _dropper = dropper.GetComponent<OreDropper>();
     }
 
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        _canBeHit = true;
+    }
+
     public void Hit(double strength)
     {
+        if (!_canBeHit) return;
+
         if (strength < Health)
         {
             Health -= strength;
@@ -77,7 +85,6 @@ public class RockController : MonoBehaviour, IPointerDownHandler
 
             _dropper.DropOre();
             GameController.Instance.AddMoney(_reward);
-            AutoMiner.Instance.StopMiner();
             GameController.Instance.SpawnRock();
             Destroy(gameObject);
         }
@@ -92,6 +99,8 @@ public class RockController : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if(!_canBeHit) return;
+
         AudioController.Instance.PlayPickaxeSound(PickaxeSound[Random.Range(0, PickaxeSound.Length)]);
         Instantiate(HitParticles, eventData.pointerCurrentRaycast.worldPosition, Quaternion.identity);
         Hit(GameController.Instance.GetStrength());

@@ -91,4 +91,13 @@ public class MovingUIHandler : MonoBehaviour
 
         target.MoveUI();
     }
+
+    public void HideAll()
+    {
+        if (_isElementInside)
+        {
+            _elementInside.MoveUI();
+            _isElementInside = false;
+        }
+    }
 }

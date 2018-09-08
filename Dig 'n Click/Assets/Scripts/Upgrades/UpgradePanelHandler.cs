@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Net;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class UpgradePanelHandler : MonoBehaviour
@@ -31,10 +27,6 @@ public class UpgradePanelHandler : MonoBehaviour
         _upgradeValues = UpgradesConsts.GetUpgradeValues(Upgrade);
 
         CalculateNextUpgradeCost();
-        ToggleButtonFade();
-        UpdateSlider();
-        GameController.Instance.SetMiningPowerText();
-        UpdateText();
         ToggleSlot();
     }
 
@@ -42,8 +34,8 @@ public class UpgradePanelHandler : MonoBehaviour
     {
         if (Upgrade.Equals(Upgrade.Upgrade1))
         {
-            UpgradeText.text = "Increases DMG by " + _upgradeValues.Productivity;
-            ActualProductivity.text = "Current DMG is " + GameController.Instance.GetStrength();
+            UpgradeText.text = "Increases DMG by " + MoneyConverter.ConvertNumber(_upgradeValues.Productivity);
+            ActualProductivity.text = "Current DMG is " + MoneyConverter.ConvertNumber(GameController.Instance.GetStrength());
 
             if (!UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade)) return;
 
@@ -58,8 +50,8 @@ public class UpgradePanelHandler : MonoBehaviour
         }
         else
         {
-            UpgradeText.text = "Increases DPS by " + _upgradeValues.Productivity;
-            ActualProductivity.text = "Current DPS is " + UpgradesController.CalculateUpgradeProductivity(Upgrade);
+            UpgradeText.text = "Increases DPS by " + MoneyConverter.ConvertNumber(_upgradeValues.Productivity);
+            ActualProductivity.text = "Current DPS is " + MoneyConverter.ConvertNumber(UpgradesController.CalculateUpgradeProductivity(Upgrade));
 
             if (!UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade)) return;
 
@@ -180,7 +172,6 @@ public class UpgradePanelHandler : MonoBehaviour
 
         ToggleButtonFade();
         UpdateSlider();
-        controller.SetMiningPowerText();
         UpdateText();
     }
 }

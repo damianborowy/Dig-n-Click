@@ -30,18 +30,8 @@ public class UpgradesController : MonoBehaviour
 
     public void OverrideUpgrades()
     {
-        UpgradesDictionary = new Dictionary<Upgrade, int>();
-        Upgrade upgrade = Upgrade.Upgrade1;
-
-        try
-        {
-            while (upgrade.Next() != Upgrade.Upgrade1)
-            {
-                UpgradesDictionary.Add(upgrade, upgrade == Upgrade.Upgrade2 ? 1 : 0);
-                upgrade = upgrade.Next();
-            }
-        }
-        catch (ArgumentException) { }
+        UpgradesDictionary = null;
+        CreateEmptyUpgradesDictionary();
     }
 
     public void CreateEmptyUpgradesDictionary()

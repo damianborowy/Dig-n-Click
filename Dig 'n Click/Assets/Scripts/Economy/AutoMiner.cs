@@ -21,25 +21,24 @@ public class AutoMiner : MonoBehaviour
         }
     }
 
-    public void StartMiner()
+    private void Start()
     {
         StartCoroutine(AutoMine());
     }
 
-    public void StopMiner()
-    {
-        StopAllCoroutines();
-    }
-
     private IEnumerator AutoMine()
     {
-        yield return new WaitForSeconds(0.45f);
-        _rc = GetRockController();
-
         while (true)
         {
-            _rc.Hit(GameController.Instance.GetAutoStrength());
-            yield return new WaitForSeconds((float) GameController.Instance.GetMiningSpeed());
+            _rc = GetRockController();
+
+            while (_rc != null)
+            {
+                _rc.Hit(GameController.Instance.GetAutoStrength());
+                yield return new WaitForSeconds((float) GameController.Instance.GetMiningSpeed());
+            }
+
+            yield return null;
         }
     }
 

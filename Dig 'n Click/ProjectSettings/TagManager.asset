@@ -19,6 +19,7 @@ TagManager:
   - ExitButton
   - Text
   - FadingText
+  - Background
   layers:
   - Default
   - TransparentFX

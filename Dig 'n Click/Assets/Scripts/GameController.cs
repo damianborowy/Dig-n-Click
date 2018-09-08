@@ -26,9 +26,9 @@ public class GameController : MonoBehaviour
     private double _strength = 1;
     private double _autoStrength = 0;
     private double _miningSpeed = 1.05;
-    private double _prestigeOre = 0;
-    private double _prestigeOreMultiplier = 0.1;
-    private double _moneySincePrestige;
+    private double _prestigeCrystals = 0;
+    private double _prestigeCrystalsMultiplier = 0.1;
+    private double _totalMoneyEarned;
     private double _nextLevelCost;
     private Vector3 _rockSpawn;
     private string _saveFilePath;
@@ -41,7 +41,7 @@ public class GameController : MonoBehaviour
     private class PlayerData
     {
         public int MaxLevel, Level;
-        public double Time, Money, PrestigeOre, PrestigeOreMultiplier;
+        public double Time, Money, PrestigeCrystals, PrestigeCrystalsMultiplier;
         public MoneyConverter.Type Notation;
         public bool FirstLaunch, TutorialCompleted;
         public Dictionary<string, int> Items;
@@ -94,29 +94,29 @@ public class GameController : MonoBehaviour
 
     //Prestige --------------------------------------------------------------------------------
 
-    public void AddPrestigeOre(double added)
+    public void AddPrestigeCrystals(double added)
     {
-        _prestigeOre += added;
+        _prestigeCrystals += added;
     }
 
-    public double GetPrestigeOre()
+    public double GetPrestigeCrystals()
     {
-        return _prestigeOre;
+        return _prestigeCrystals;
     }
 
-    public double GetMoneySincePrestige()
+    public double GetTotalMoney()
     {
-        return _moneySincePrestige;
+        return _totalMoneyEarned;
     }
 
-    public double GetPrestigeOreMultiplier()
+    public double GetPrestigeCrystalsMultiplier()
     {
-        return _prestigeOreMultiplier;
+        return _prestigeCrystalsMultiplier;
     }
 
     public void SetPrestigeOreMultiplier(double multiplier)
     {
-        _prestigeOreMultiplier = multiplier;
+        _prestigeCrystalsMultiplier = multiplier;
     }
 
     //Launch ----------------------------------------------------------------------------------
@@ -154,10 +154,10 @@ public class GameController : MonoBehaviour
     public void AddMoney(double added)
     {
         _money += added;
-        _moneySincePrestige += added;
+        _totalMoneyEarned += added;
         SetMoneyText();
         ToggleUpgradeButtons();
-        PrestigeController.Instance.UpdateRewardText();
+        PrestigeController.Instance.UpdateReward();
     }
 
     public void SubMoney(double subbed)
@@ -170,7 +170,9 @@ public class GameController : MonoBehaviour
     public void SetMoneyToZero()
     {
         _money = 0;
-        _moneySincePrestige = 0;
+        _totalMoneyEarned = 0;
+		SetMoneyText();
+        ToggleUpgradeButtons();
     }
 
     private void SetMoneyText()
@@ -217,12 +219,6 @@ public class GameController : MonoBehaviour
         GameObject shadow = GameObject.FindWithTag("Shadow");
         if (shadow != null)
             shadow.GetComponent<ShadowResizer>().Resize();
-        else
-        {
-            Debug.Log("Shadow not found");
-        }
-
-        AutoMiner.Instance.StartMiner();
     }
 
     //MiningPower -----------------------------------------------------------------------------
@@ -239,8 +235,6 @@ public class GameController : MonoBehaviour
 
     public void CalculateMiningSpeed()
     {
-        AutoMiner.Instance.StopMiner();
-
         if (UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade.Upgrade2))
         {
             SetMiningSpeed(1.05 - UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade2] *
@@ -251,7 +245,7 @@ public class GameController : MonoBehaviour
             _miningSpeed = 1.05;
         }
 
-        AutoMiner.Instance.StartMiner();
+        SetMiningPowerText();
     }
 
     public double GetStrength()
@@ -263,7 +257,9 @@ public class GameController : MonoBehaviour
     {
         _strength = (UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade1] + 1) *
                     UpgradesController.CalculateMultiplier(Upgrade.Upgrade1);
-        _strength += _strength * _prestigeOre * _prestigeOreMultiplier;
+        _strength += _strength * _prestigeCrystals * _prestigeCrystalsMultiplier;
+
+        SetMiningPowerText();
     }
 
     public double GetAutoStrength()
@@ -284,9 +280,11 @@ public class GameController : MonoBehaviour
             }
         }
         
-        autoStrength += autoStrength * _prestigeOre * _prestigeOreMultiplier;
+        autoStrength += autoStrength * _prestigeCrystals * _prestigeCrystalsMultiplier;
 
         _autoStrength = autoStrength;
+
+        SetMiningPowerText();
     }
 
     public void SetMiningPowerText()
@@ -306,6 +304,7 @@ public class GameController : MonoBehaviour
     {
         _level = level;
         SetLevelText();
+        CalculateNextLevelCost();
         ProbabilitiesUI.UpdateProbabilities();
         ArrowDownLevelChanger.UpdatePricetag();
     }
@@ -365,8 +364,8 @@ public class GameController : MonoBehaviour
         data.TutorialCompleted = _tutorialCompleted;
         data.FirstLaunch = false;
         data.Notation = MoneyConverter.Notation;
-        data.PrestigeOre = _prestigeOre;
-        data.PrestigeOreMultiplier = _prestigeOreMultiplier;
+        data.PrestigeCrystals = _prestigeCrystals;
+        data.PrestigeCrystalsMultiplier = _prestigeCrystalsMultiplier;
 
         bf.Serialize(file, data);
         file.Close();
@@ -390,8 +389,8 @@ public class GameController : MonoBehaviour
             _tutorialCompleted = data.TutorialCompleted;
             UpgradesController.Instance.UpgradesDictionary = data.Upgrades;
             MoneyConverter.Notation = data.Notation;
-            _prestigeOre = data.PrestigeOre;
-            _prestigeOreMultiplier = data.PrestigeOreMultiplier;
+            _prestigeCrystals = data.PrestigeCrystals;
+            _prestigeCrystalsMultiplier = data.PrestigeCrystalsMultiplier;
 
             SerializableOre.DeserializeOres(data.Items);
         }
