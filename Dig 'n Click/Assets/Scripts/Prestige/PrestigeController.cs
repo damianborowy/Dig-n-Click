@@ -54,11 +54,11 @@ public class PrestigeController : MonoBehaviour
             totalMoney += pair.Key.Value * pair.Value;
         }
 
-        double prestigeReward = 150 * Math.Sqrt(totalMoney / Math.Pow(10, 12));
+        double prestigeReward = 150 * Math.Sqrt(totalMoney / Math.Pow(10, 9));
 
         Debug.Log("Current prestige reward: " + prestigeReward);
 
-        return Math.Ceiling(prestigeReward);
+        return Math.Round(prestigeReward);
     }
 
     private void UpdateOwnedAmount()

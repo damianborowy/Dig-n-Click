@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UpgradePanelHandler : MonoBehaviour
 {
     public Upgrade Upgrade;
-    public Text UpgradeText;
+    public TextMeshProUGUI UpgradeDescription;
     public Text UpgradeLevel;
-    public Text ActualProductivity;
+    public TextMeshProUGUI ActualProductivity;
     public Text NextMultiplier;
     public Slider MultiplyProgressSlider;
     public AudioClip BuySound;
@@ -32,10 +33,18 @@ public class UpgradePanelHandler : MonoBehaviour
 
     private void UpdateText()
     {
+        var prestigeBonus = GameController.Instance.GetPrestigeCrystals() *
+                            GameController.Instance.GetPrestigeCrystalsMultiplier();
+        var productivity = _upgradeValues.Productivity * UpgradesController.CalculateMultiplier(Upgrade);
+            productivity += productivity * prestigeBonus;
+
         if (Upgrade.Equals(Upgrade.Upgrade1))
         {
-            UpgradeText.text = "Increases DMG by " + MoneyConverter.ConvertNumber(_upgradeValues.Productivity);
-            ActualProductivity.text = "Current DMG is " + MoneyConverter.ConvertNumber(GameController.Instance.GetStrength());
+            var strength = GameController.Instance.GetStrength();
+                strength += strength * prestigeBonus;
+
+            UpgradeDescription.text = "Increases <b>DMG</b> by <b>" + MoneyConverter.ConvertNumber(productivity) + "</b>.";
+            ActualProductivity.text = "Current <b>DMG</b> is <b>" + MoneyConverter.ConvertNumber(strength) + "</b>.";
 
             if (!UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade)) return;
 
@@ -44,14 +53,16 @@ public class UpgradePanelHandler : MonoBehaviour
         }
         else if (Upgrade.Equals(Upgrade.Upgrade2))
         {
-            UpgradeText.text = "Shortens auto mining interval by " + _upgradeValues.Productivity;
-            ActualProductivity.text = "Current mining interval is " + GameController.Instance.GetMiningSpeed() + "s";
+            UpgradeDescription.text = "Shortens auto mining interval by <b>" + _upgradeValues.Productivity + "s</b>.";
+            ActualProductivity.text = "Current mining interval is <b>" + GameController.Instance.GetMiningSpeed() + "s</b>.";
             NextMultiplier.text = "";
         }
         else
         {
-            UpgradeText.text = "Increases DPS by " + MoneyConverter.ConvertNumber(_upgradeValues.Productivity);
-            ActualProductivity.text = "Current DPS is " + MoneyConverter.ConvertNumber(UpgradesController.CalculateUpgradeProductivity(Upgrade));
+            var autoStrength = UpgradesController.CalculateUpgradeProductivity(Upgrade);
+                autoStrength += autoStrength * prestigeBonus;
+            UpgradeDescription.text = "Increases <b>DPS</b> by <b>" + MoneyConverter.ConvertNumber(productivity) + "</b>.";
+            ActualProductivity.text = "Current <b>DPS</b> is <b>" + MoneyConverter.ConvertNumber(autoStrength) + "</b>.";
 
             if (!UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade)) return;
 

@@ -57,6 +57,7 @@ public class ShowIdleRewardWindow : MonoBehaviour
         double moneyReward = rewardMoneyOres.Key;
         Dictionary<Ore, int> oreReward = rewardMoneyOres.Value;
 
+        Text.text = "<br><size=%27>While you were away<br>you mined:</size><br><br> ";
         if (moneyReward < 1 && oreReward.Count == 0)
             Text.text += "Nothing!<br> ";
         else
@@ -75,6 +76,12 @@ public class ShowIdleRewardWindow : MonoBehaviour
     public static KeyValuePair<double, Dictionary<Ore, int>> IdleReward(double idleTime)
     {
         var instance = GameController.Instance;
+        int timeLimit = 43200;
+
+        if (idleTime > timeLimit)
+        {
+            idleTime = timeLimit;
+        }
 
         double maxRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias,
             BasicEconomyValues.HealthExponentialMultiplier, instance.GetMaxLevel());

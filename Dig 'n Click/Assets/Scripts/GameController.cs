@@ -41,7 +41,7 @@ public class GameController : MonoBehaviour
     private class PlayerData
     {
         public int MaxLevel, Level;
-        public double Time, Money, PrestigeCrystals, PrestigeCrystalsMultiplier;
+        public double Time, Money, PrestigeCrystals, PrestigeCrystalsMultiplier, TotalMoneyEarned;
         public MoneyConverter.Type Notation;
         public bool FirstLaunch, TutorialCompleted;
         public Dictionary<string, int> Items;
@@ -366,6 +366,7 @@ public class GameController : MonoBehaviour
         data.Notation = MoneyConverter.Notation;
         data.PrestigeCrystals = _prestigeCrystals;
         data.PrestigeCrystalsMultiplier = _prestigeCrystalsMultiplier;
+        data.TotalMoneyEarned = _totalMoneyEarned;
 
         bf.Serialize(file, data);
         file.Close();
@@ -391,6 +392,7 @@ public class GameController : MonoBehaviour
             MoneyConverter.Notation = data.Notation;
             _prestigeCrystals = data.PrestigeCrystals;
             _prestigeCrystalsMultiplier = data.PrestigeCrystalsMultiplier;
+            _totalMoneyEarned = data.TotalMoneyEarned;
 
             SerializableOre.DeserializeOres(data.Items);
         }
