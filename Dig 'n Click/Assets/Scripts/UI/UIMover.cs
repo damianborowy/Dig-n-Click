@@ -11,7 +11,9 @@ public class UIMover : MonoBehaviour
     public float ComparisonPrecisionExponent;
     public Direction MoveAnchor;
     public AudioClip OpenWindowSound;
+    public float OpenWindowSoundVolume;
     public AudioClip CloseWindowSound;
+    public float CloseWindowSoundVolume;
 
     private RectTransform _rectTransform;
     private RectTransform _parentRectTransform;
@@ -70,12 +72,12 @@ public class UIMover : MonoBehaviour
 
         if (_isInside)
         {
-            AudioController.Instance.PlayCloseWindowSound(CloseWindowSound);
+            AudioController.Instance.PlayAudioEffect(CloseWindowSound, CloseWindowSoundVolume);
             StartCoroutine(MoveOutside());
         }
         else
         {
-            AudioController.Instance.PlayOpenWindowSound(OpenWindowSound);
+            AudioController.Instance.PlayAudioEffect(OpenWindowSound, OpenWindowSoundVolume);
             StartCoroutine(MoveInside());
         }
     }

@@ -13,6 +13,7 @@ public class GameController : MonoBehaviour
     public Text AscendCostDisplay;
     public Text MiningPowerDisplay;
     public GameObject[] Rocks;
+    public Transform RockSpawn;
     public LevelChanger ArrowDownLevelChanger;
     public ProbabilitesHandler ProbabilitiesUI;
     public bool EnableSaving = true;
@@ -30,7 +31,6 @@ public class GameController : MonoBehaviour
     private double _prestigeCrystalsMultiplier = 0.1;
     private double _totalMoneyEarned;
     private double _nextLevelCost;
-    private Vector3 _rockSpawn;
     private string _saveFilePath;
     private double _lastTime = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
     private bool _firstLaunch = true;
@@ -38,10 +38,13 @@ public class GameController : MonoBehaviour
     private GameObject[] _upgradesList;
 
     [Serializable]
-    private class PlayerData
+    private struct PlayerData
     {
         public int MaxLevel, Level;
-        public double Time, Money, PrestigeCrystals, PrestigeCrystalsMultiplier, TotalMoneyEarned;
+        public double LastTime, LastClaimTime;
+        public int ClaimCount;
+        public double Money, TotalMoneyEarned;
+        public double PrestigeCrystals, PrestigeCrystalsMultiplier;
         public MoneyConverter.Type Notation;
         public bool FirstLaunch, TutorialCompleted;
         public Dictionary<string, int> Items;
@@ -171,7 +174,7 @@ public class GameController : MonoBehaviour
     {
         _money = 0;
         _totalMoneyEarned = 0;
-		SetMoneyText();
+        SetMoneyText();
         ToggleUpgradeButtons();
     }
 
@@ -210,12 +213,12 @@ public class GameController : MonoBehaviour
     private void SetRockSpawn()
     {
         double worldScreenHeight = Camera.main.orthographicSize * 2.0;
-        _rockSpawn = new Vector3(0, (float) worldScreenHeight, 0);
+        RockSpawn.position = new Vector3(0, (float) worldScreenHeight, 0);
     }
 
     public void SpawnRock()
     {
-        Instantiate(Rocks[UnityEngine.Random.Range(0, Rocks.Length)], _rockSpawn, Quaternion.identity);
+        Instantiate(Rocks[UnityEngine.Random.Range(0, Rocks.Length)], RockSpawn);
         GameObject shadow = GameObject.FindWithTag("Shadow");
         if (shadow != null)
             shadow.GetComponent<ShadowResizer>().Resize();
@@ -245,7 +248,7 @@ public class GameController : MonoBehaviour
             _miningSpeed = 1.05;
         }
 
-        SetMiningPowerText();
+        UpdateMiningPowerText();
     }
 
     public double GetStrength()
@@ -259,7 +262,7 @@ public class GameController : MonoBehaviour
                     UpgradesController.CalculateMultiplier(Upgrade.Upgrade1);
         _strength += _strength * _prestigeCrystals * _prestigeCrystalsMultiplier;
 
-        SetMiningPowerText();
+        UpdateMiningPowerText();
     }
 
     public double GetAutoStrength()
@@ -276,21 +279,30 @@ public class GameController : MonoBehaviour
             if (!upgrade.Equals(Upgrade.Upgrade1) && !upgrade.Equals(Upgrade.Upgrade2))
             {
                 if (UpgradesConsts.GetUpgradeValues(upgrade) != null)
-                    autoStrength += UpgradesConsts.GetUpgradeValues(upgrade).Productivity * UpgradesController.Instance.UpgradesDictionary[upgrade] * UpgradesController.CalculateMultiplier(upgrade);
+                    autoStrength += UpgradesConsts.GetUpgradeValues(upgrade).Productivity *
+                                    UpgradesController.Instance.UpgradesDictionary[upgrade] *
+                                    UpgradesController.CalculateMultiplier(upgrade);
             }
         }
-        
+
         autoStrength += autoStrength * _prestigeCrystals * _prestigeCrystalsMultiplier;
 
         _autoStrength = autoStrength;
 
-        SetMiningPowerText();
+        UpdateMiningPowerText();
     }
 
-    public void SetMiningPowerText()
+    public double GetMiningPower()
     {
+        return GetAutoStrength() / GetMiningSpeed();
+    }
+
+    public void UpdateMiningPowerText()
+    {
+        double DPS = Math.Round(GetAutoStrength() / GetMiningSpeed()) *
+                     AutoMiner.Instance.GetMiningSpeedMultiplier();
         MiningPowerDisplay.text =
-            MoneyConverter.ConvertNumber(Math.Round(GetAutoStrength() / GetMiningSpeed())) + " DPS";
+            MoneyConverter.ConvertNumber(DPS) + " DPS";
     }
 
     //Level -----------------------------------------------------------------------------------
@@ -358,7 +370,7 @@ public class GameController : MonoBehaviour
         data.MaxLevel = _maxLevel;
         data.Level = _level;
         data.Money = _money;
-        data.Time = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
+        data.LastTime = (DateTime.UtcNow - EpochTimeStart).TotalSeconds;
         data.Items = SerializableOre.ConvertToSerializable(EquipmentController.Instance.Items);
         data.Upgrades = UpgradesController.Instance.UpgradesDictionary;
         data.TutorialCompleted = _tutorialCompleted;
@@ -367,6 +379,9 @@ public class GameController : MonoBehaviour
         data.PrestigeCrystals = _prestigeCrystals;
         data.PrestigeCrystalsMultiplier = _prestigeCrystalsMultiplier;
         data.TotalMoneyEarned = _totalMoneyEarned;
+        DailyRewards dailyRewards = GetComponent<DailyRewards>();
+        data.LastClaimTime = dailyRewards.GetLastClaimTime();
+        data.ClaimCount = dailyRewards.GetClaimCount();
 
         bf.Serialize(file, data);
         file.Close();
@@ -385,7 +400,7 @@ public class GameController : MonoBehaviour
             _maxLevel = data.MaxLevel;
             _level = data.Level;
             _money = data.Money;
-            _lastTime = data.Time;
+            _lastTime = data.LastTime;
             _firstLaunch = data.FirstLaunch;
             _tutorialCompleted = data.TutorialCompleted;
             UpgradesController.Instance.UpgradesDictionary = data.Upgrades;
@@ -393,6 +408,9 @@ public class GameController : MonoBehaviour
             _prestigeCrystals = data.PrestigeCrystals;
             _prestigeCrystalsMultiplier = data.PrestigeCrystalsMultiplier;
             _totalMoneyEarned = data.TotalMoneyEarned;
+            DailyRewards dailyRewards = GetComponent<DailyRewards>();
+            dailyRewards.LoadLastClaimTime(data.LastClaimTime);
+            dailyRewards.LoadClaimCount(data.ClaimCount);
 
             SerializableOre.DeserializeOres(data.Items);
         }

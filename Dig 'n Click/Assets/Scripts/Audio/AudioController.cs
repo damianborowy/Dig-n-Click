@@ -6,13 +6,15 @@ using UnityEngine.UI;
 public class AudioController : MonoBehaviour
 {
     public static AudioController Instance;
+    public Transform EffectsTransform;
+    public AudioSource MusicAudioSource;
+    public GameObject AudioEffectPrefab;
     public Slider MusicVolumeSlider;
     public Slider EffectsVolumeSlider;
 
-    private AudioSource[] _effects;
-    private AudioSource _music;
-    private float[] _effectsVolume = new float[10];
+    private float _effectsVolume;
     private float _musicVolume;
+    private List<AudioSource> _loopedAudioEffects = new List<AudioSource>();
 
     private void Awake()
     {
@@ -25,16 +27,18 @@ public class AudioController : MonoBehaviour
             Destroy(gameObject);
         }
 
-        _effects = transform.GetChild(0).gameObject.GetComponents<AudioSource>();
-        _music = transform.GetChild(1).gameObject.GetComponent<AudioSource>();
+        SetAudioVolume();
+    }
 
-        for (int i = 0; i < 10; ++i)
-        {
-            _effectsVolume[i] = _effects[i].volume;
-        }
+    private void SetAudioVolume()
+    {
+        _musicVolume = MusicAudioSource.volume;
+        _effectsVolume = 1;
+        LoadPlayerAudioPrefs();
+    }
 
-        _musicVolume = _music.volume;
-
+    private void LoadPlayerAudioPrefs()
+    {
         if (PlayerPrefs.HasKey("BG"))
         {
             float musicVolume = PlayerPrefs.GetFloat("BG");
@@ -50,84 +54,54 @@ public class AudioController : MonoBehaviour
 
     public void ChangeMusicVolume(float value)
     {
-        _music.volume = _musicVolume * value;
+        MusicAudioSource.volume = _musicVolume * value;
 
         PlayerPrefs.SetFloat("BG", MusicVolumeSlider.value);
     }
 
     public void ChangeEffectsVolume(float value)
     {
-        for (int i = 0; i < 10; ++i)
-        {
-            _effects[i].volume = _effectsVolume[i] * value;
-        }
+        _effectsVolume = value;
 
         PlayerPrefs.SetFloat("FX", EffectsVolumeSlider.value);
     }
 
-    public void PlayPickaxeSound(AudioClip audioClip)
+    public void PlayAudioEffect(AudioClip audioClip, float volume)
     {
-        _effects[0].clip = audioClip;
-        _effects[0].Play();
+        AudioSource audioSource = CreateAudioSource(audioClip, volume);
+        audioSource.Play();
+        DestroyByClipLenght(audioSource);
     }
 
-    public void PlayDestroySound(AudioClip audioClip)
+    public void PlayAudioEffectInLoop(AudioClip audioClip, float volume)
     {
-        _effects[1].clip = audioClip;
-        _effects[1].Play();
+        AudioSource audioSource = CreateAudioSource(audioClip, volume);
+        audioSource.loop = true;
+        audioSource.Play();
+        _loopedAudioEffects.Add(audioSource);
     }
 
-    public void PlayGroundHitSound(AudioClip audioClip)
+    private AudioSource CreateAudioSource(AudioClip audioClip, float volume)
     {
-        _effects[2].clip = audioClip;
-        _effects[2].Play();
+        GameObject audioEffectGameObject = Instantiate(AudioEffectPrefab, EffectsTransform);
+        AudioSource audioSource = audioEffectGameObject.GetComponent<AudioSource>();
+        audioSource.volume = volume * _effectsVolume;
+        audioSource.clip = audioClip;
+        return audioSource;
     }
 
-    public void PlayOpenWindowSound(AudioClip audioClip)
+    public void StopAndDestroyLoopedAudioEffects()
     {
-        _effects[3].clip = audioClip;
-        _effects[3].Play();
+        foreach (var loopedAudioEffect in _loopedAudioEffects)
+        {
+            loopedAudioEffect.loop = false;
+            DestroyByClipLenght(loopedAudioEffect);
+        }
     }
 
-    public void PlayCloseWindowSound(AudioClip audioClip)
+    private void DestroyByClipLenght(AudioSource audioSource)
     {
-        _effects[4].clip = audioClip;
-        _effects[4].Play();
-    }
-
-    public void PlayLevelUpSound(AudioClip audioClip)
-    {
-        _effects[5].clip = audioClip;
-        _effects[5].Play();
-    }
-
-    public void PlayLevelDownSound(AudioClip audioClip)
-    {
-        _effects[6].clip = audioClip;
-        _effects[6].Play();
-    }
-
-    public void PlayOredropSound(AudioClip audioClip)
-    {
-        _effects[7].clip = audioClip;
-        _effects[7].Play();
-    }
-
-    public void PlayBuySellSound(AudioClip audioClip)
-    {
-        _effects[8].clip = audioClip;
-        _effects[8].Play();
-    }
-
-    public void PlayCrystalSound(AudioClip audioClip)
-    {
-        _effects[9].loop = true;
-        _effects[9].clip = audioClip;
-        _effects[9].Play();
-    }
-
-    public void StopCrystalSound()
-    {
-        _effects[9].loop = false;
+        float clipLength = audioSource.clip.length;
+        Destroy(audioSource.gameObject, clipLength);
     }
 }

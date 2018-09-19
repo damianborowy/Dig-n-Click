@@ -6,17 +6,22 @@ using UnityEngine.UI;
 public class SellHandler : MonoBehaviour
 {
     public AudioClip SellSound;
+    public float SellSoundVolume;
 
     private Ore _oreToSell;
     private int _amountSet;
     private int _maxAmount;
+    private Text _oreName;
+    private Slider _amountSlider;
 
     public void Initialize(Ore ore, int maxAmount)
     {
         _oreToSell = ore;
-        transform.GetChild(0).Find("Name").gameObject.GetComponent<Text>().text = ore.Name;
+        _oreName = transform.GetChild(0).Find("Name").gameObject.GetComponent<Text>();
+        _oreName.text = ore.Name;
         _maxAmount = maxAmount;
-        transform.GetChild(0).Find("Slider").gameObject.GetComponent<Slider>().maxValue = _maxAmount;
+        _amountSlider = transform.GetChild(0).Find("Slider").gameObject.GetComponent<Slider>();
+        _amountSlider.maxValue = _maxAmount;
     }
 
     public void OnValueChange(float amount)
@@ -28,8 +33,15 @@ public class SellHandler : MonoBehaviour
     public void SetMax()
     {
         _amountSet = _maxAmount;
-        transform.GetChild(0).Find("Slider").gameObject.GetComponent<Slider>().value = _amountSet;
+        _amountSlider.value = _amountSet;
         SetSellButton();
+    }
+
+    public void UpdateMaxAmount()
+    {
+        if (_oreToSell == null) return;
+        _maxAmount = EquipmentController.Instance.Items[_oreToSell];
+        _amountSlider.maxValue = _maxAmount;
     }
 
     private void SetSellButton()
@@ -43,8 +55,10 @@ public class SellHandler : MonoBehaviour
     {
         if (EquipmentController.Instance.RemoveItem(_oreToSell, _amountSet))
         {
-            AudioController.Instance.PlayBuySellSound(SellSound);
+            AudioController.Instance.PlayAudioEffect(SellSound, SellSoundVolume);
             GameController.Instance.AddMoney(_oreToSell.Value * _amountSet);
         }
+
+        _oreToSell = null;
     }
 }

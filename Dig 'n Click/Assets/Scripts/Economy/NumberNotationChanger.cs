@@ -8,6 +8,7 @@ public class NumberNotationChanger : MonoBehaviour
     public Button NormalButton;
     public Button SimpleButton;
     public Button ScientificButton;
+    public GameObject UpgradesPanel;
 
     private void Start()
     {
@@ -62,6 +63,11 @@ public class NumberNotationChanger : MonoBehaviour
         var gameControllerInstance = GameController.Instance;
         gameControllerInstance.AddMoney(0);
         gameControllerInstance.CalculateNextLevelCost();
-        gameControllerInstance.SetMiningPowerText();
+        gameControllerInstance.UpdateMiningPowerText();
+        foreach (Transform childUpgradeTransform in UpgradesPanel.transform)
+        {
+            var upgradePanelHandler = childUpgradeTransform.gameObject.GetComponent<UpgradePanelHandler>();
+            upgradePanelHandler.CalculateNextUpgradeCost();
+        }
     }
 }

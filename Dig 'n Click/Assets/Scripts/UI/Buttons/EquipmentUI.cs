@@ -8,9 +8,7 @@ public class EquipmentUI : MonoBehaviour
 {
     public GameObject Slot;
     public GameObject ScrollableSlots;
-    public GameObject PrestigeSlots;
-    public Button OresBookmark;
-    public Button PrestigeBookmark;
+    public List<BookmarkChanger> Bookmarks;
 
     private MovingUIHandler _movingUIHandler;
 
@@ -27,23 +25,18 @@ public class EquipmentUI : MonoBehaviour
 
     private void Start()
     {
-        ChangeToOres();
+        ChangeToBookmarkByIndex(0);
     }
 
-    public void ChangeToOres()
+    public void ChangeToBookmarkByIndex(int index)
     {
-        ScrollableSlots.SetActive(true);
-        PrestigeSlots.SetActive(false);
-        OresBookmark.interactable = false;
-        PrestigeBookmark.interactable = true;
-    }
-
-    public void ChangeToPrestige()
-    {
-        PrestigeSlots.SetActive(true);
-        ScrollableSlots.SetActive(false);
-        PrestigeBookmark.interactable = false;
-        OresBookmark.interactable = true;
+        for (int i = 0; i < Bookmarks.Count; ++i)
+        {
+            if (i == index)
+                Bookmarks[i].Activate();
+            else
+                Bookmarks[i].Deactivate();
+        }
     }
 
     public void Toggle()
@@ -53,5 +46,24 @@ public class EquipmentUI : MonoBehaviour
         GameObject sellButtonGameObject = GameObject.FindWithTag("SellButton");
         if (sellButtonGameObject != null)
             sellButtonGameObject.GetComponent<SellButtonController>().Clear();
+    }
+}
+
+[System.Serializable]
+public class BookmarkChanger
+{
+    public GameObject Slots;
+    public Button Bookmark;
+
+    public void Activate()
+    {
+        Slots.SetActive(true);
+        Bookmark.interactable = false;
+    }
+
+    public void Deactivate()
+    {
+        Slots.SetActive(false);
+        Bookmark.interactable = true;
     }
 }

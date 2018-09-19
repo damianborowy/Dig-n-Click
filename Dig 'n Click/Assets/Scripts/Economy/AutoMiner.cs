@@ -7,6 +7,7 @@ public class AutoMiner : MonoBehaviour
     public static AutoMiner Instance;
 
     private RockController _rc;
+    private int _miningSpeedMultiplier = 1;
 
     private void Awake()
     {
@@ -34,8 +35,8 @@ public class AutoMiner : MonoBehaviour
 
             while (_rc != null)
             {
-                _rc.Hit(GameController.Instance.GetAutoStrength());
-                yield return new WaitForSeconds((float) GameController.Instance.GetMiningSpeed());
+                _rc.Hit(CalculateHitStrength());
+                yield return new WaitForSeconds((float) GameController.Instance.GetMiningSpeed() / _miningSpeedMultiplier);
             }
 
             yield return null;
@@ -46,5 +47,24 @@ public class AutoMiner : MonoBehaviour
     {
         GameObject rock = GameObject.FindWithTag("Rock");
         return rock != null ? rock.GetComponent<RockController>() : null;
+    }
+
+    private double CalculateHitStrength()
+    {
+        return GameController.Instance.GetAutoStrength();
+    }
+
+    public int GetMiningSpeedMultiplier()
+    {
+        return _miningSpeedMultiplier;
+    }
+
+    public IEnumerator MultiplyDamagePerSecond(int times, float seconds)
+    {
+        _miningSpeedMultiplier *= times;
+        GameController.Instance.UpdateMiningPowerText();
+        yield return new WaitForSecondsRealtime(seconds);
+        _miningSpeedMultiplier /= times;
+        GameController.Instance.UpdateMiningPowerText();
     }
 }

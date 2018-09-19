@@ -49,7 +49,12 @@ public class UpgradesController : MonoBehaviour
                 upgrade = upgrade.Next();
             }
         }
-        catch (ArgumentException) {}
+        catch (Exception e)
+        {
+            Debug.Log("Caught exception in: " + e.TargetSite);
+            Debug.Log(e.Message);
+            Debug.Log(e.StackTrace);
+        }
     }
 
     public void CreateUpgradeMultipliersDictionary()

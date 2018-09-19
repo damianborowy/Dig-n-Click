@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +10,7 @@ public class OreDropper : MonoBehaviour
     public float TextSpawnRadius;
     public float DropChance;
     public AudioClip DropSound;
+    public float DropSoundVolume;
     
     public Dictionary<Ore, int> DropOre(int repeat = 1)
     {
@@ -47,7 +47,7 @@ public class OreDropper : MonoBehaviour
         {
             if (EquipmentController.Instance.AddItem(element.Key, element.Value))
             {
-                AudioController.Instance.PlayOredropSound(DropSound);
+                AudioController.Instance.PlayAudioEffect(DropSound, DropSoundVolume);
                 InstantiateDropText(element.Key, element.Value);
             }
             else

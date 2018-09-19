@@ -74,6 +74,7 @@ public class EquipmentController : MonoBehaviour
         {
             Items[itemToAdd] += amount;
             UpdateItemSlots(itemToAdd);
+            SellButton.UpdateMaxValueInSellHandler(); //update sell slider max value dynamically
             return true;
         }
 

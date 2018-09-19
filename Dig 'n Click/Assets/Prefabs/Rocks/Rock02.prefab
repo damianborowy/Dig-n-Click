@@ -114,10 +114,12 @@ MonoBehaviour:
   PickaxeSound:
   - {fileID: 8300000, guid: 0e1a1a8ebc035bd419c3909c41f5b3dd, type: 3}
   - {fileID: 8300000, guid: 27beab2d8ce3c124abdab0f7f983a116, type: 3}
+  PickaxeSoundVolume: 0.1
   DestroySound:
   - {fileID: 8300000, guid: 9ed34ede926e31745b31d54080cd25d3, type: 3}
   - {fileID: 8300000, guid: 51f18516cf4463d4da660425de60097d, type: 3}
   - {fileID: 8300000, guid: de05a49e17b2ab340898698a074c5088, type: 3}
+  DestroySoundVolume: 0.5
 --- !u!212 &212574183042513266
 SpriteRenderer:
   m_ObjectHideFlags: 1

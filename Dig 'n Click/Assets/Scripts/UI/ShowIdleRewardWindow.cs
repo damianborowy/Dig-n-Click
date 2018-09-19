@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class ShowIdleRewardWindow : MonoBehaviour
 {
+    public const int TimeLimit = 12 * 60 * 60;
     public TextMeshProUGUI Text;
 
     private bool _isInitialized;
@@ -42,6 +43,7 @@ public class ShowIdleRewardWindow : MonoBehaviour
             if (child.CompareTag("Text"))
                 Destroy(child.gameObject);
         }
+
         double idleTime = GameController.Instance.GetIdleTime();
 
         KeyValuePair<double, Dictionary<Ore, int>> rewardMoneyOres;
@@ -67,7 +69,8 @@ public class ShowIdleRewardWindow : MonoBehaviour
 
             if (oreReward.Count != 0)
                 foreach (var element in oreReward)
-                    Text.text += "<color=#" + ColorUtility.ToHtmlStringRGB(element.Key.DropTextColor) + ">+" + element.Value + " " + element.Key.Name + "</color><br> ";
+                    Text.text += "<color=#" + ColorUtility.ToHtmlStringRGB(element.Key.DropTextColor) + ">+" +
+                                 element.Value + " " + element.Key.Name + "</color><br> ";
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
@@ -75,36 +78,45 @@ public class ShowIdleRewardWindow : MonoBehaviour
 
     public static KeyValuePair<double, Dictionary<Ore, int>> IdleReward(double idleTime)
     {
-        var instance = GameController.Instance;
-        int timeLimit = 43200;
-
-        if (idleTime > timeLimit)
+        if (idleTime > TimeLimit)
         {
-            idleTime = timeLimit;
+            idleTime = TimeLimit;
         }
 
-        double maxRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth, BasicEconomyValues.HealthBias,
-            BasicEconomyValues.HealthExponentialMultiplier, instance.GetMaxLevel());
-        double currentRockHealth = BasicEconomyValues.Exponent(BasicEconomyValues.BaseHealth,
-            BasicEconomyValues.HealthBias, BasicEconomyValues.HealthExponentialMultiplier, instance.GetLevel());
+        int currentRocksDestroyed = GetCurrentRocksDestroyed(idleTime);
+        int maxRocksDestroyed = GetMaxRocksDestroyed(idleTime);
 
-        instance.CalculateAutoStrength();
-        double miningSpeed = instance.GetMiningSpeed();
+        double moneyToBeAdded = GetMoneyToBeAdded(maxRocksDestroyed);
+        GameController.Instance.AddMoney(moneyToBeAdded);
 
-        double avgTimeToDestroyMaxRock = maxRockHealth * miningSpeed / instance.GetAutoStrength() +
-                                         BasicEconomyValues.RockFallingTime;
-        double avgTimeToDestroyCurrentRock = currentRockHealth * miningSpeed / instance.GetAutoStrength() +
-                                             BasicEconomyValues.RockFallingTime;
-
-        int maxRocksDestroyed = Convert.ToInt32(idleTime / avgTimeToDestroyMaxRock);
-        int currentRocksDestroyed = Convert.ToInt32(idleTime / avgTimeToDestroyCurrentRock);
-
-        double moneyToBeAdded = BasicEconomyValues.MoneyReward(instance.GetMaxLevel()) * maxRocksDestroyed;
-        instance.AddMoney(moneyToBeAdded);
-
-        OreDropper dropperScript = GameObject.FindGameObjectWithTag("Dropper").GetComponent<OreDropper>();
-        Dictionary<Ore, int> droppedOres = dropperScript.DropOre(currentRocksDestroyed);
+        Dictionary<Ore, int> droppedOres = DropOres(currentRocksDestroyed);
 
         return new KeyValuePair<double, Dictionary<Ore, int>>(moneyToBeAdded, droppedOres);
+    }
+
+    private static int GetCurrentRocksDestroyed(double idleTime)
+    {
+        int currentLevel = GameController.Instance.GetLevel();
+        double damagePerSecond = GameController.Instance.GetMiningPower();
+        return RockValuesCalculator.GetRocksDestroyedByTime(currentLevel, damagePerSecond, idleTime);
+    }
+
+    private static int GetMaxRocksDestroyed(double idleTime)
+    {
+        int maxLevel = GameController.Instance.GetMaxLevel();
+        double damagePerSecond = GameController.Instance.GetMiningPower();
+        return RockValuesCalculator.GetRocksDestroyedByTime(maxLevel, damagePerSecond, idleTime);
+    }
+
+    private static double GetMoneyToBeAdded(int rocksDestroyed)
+    {
+        int maxLevel = GameController.Instance.GetMaxLevel();
+        return BasicEconomyValues.MoneyReward(maxLevel) * rocksDestroyed;
+    }
+
+    private static Dictionary<Ore, int> DropOres(int dropAttempts)
+    {
+        OreDropper dropper = GameObject.FindGameObjectWithTag("Dropper").GetComponent<OreDropper>();
+        return dropper.DropOre(dropAttempts);
     }
 }

@@ -8,8 +8,11 @@ public class LevelChanger : MonoBehaviour
     public BackgroundScroller Scroller;
     public Direction ChangeDirection;
     public AudioClip MoveUpSound;
+    public float MoveUpSoundVolume;
     public AudioClip MoveDownSound;
+    public float MoveDownSoundVolume;
     public AudioClip BuyLevelSound;
+    public float BuyLevelSoundVolume;
 
     private Button _arrow;
     private bool _isPricetagHidden;
@@ -20,20 +23,23 @@ public class LevelChanger : MonoBehaviour
 
         int currentLevel = GameController.Instance.GetLevel();
 
-        if (ChangeDirection == Direction.Down && currentLevel < GameController.Instance.GetMaxLevel())
+        if (ChangeDirection == Direction.Down)
         {
-            AudioController.Instance.PlayLevelDownSound(MoveDownSound);
-            ChangeLevel(++currentLevel);
-        }
-        else if (ChangeDirection == Direction.Down &&
-                 GameController.Instance.GetNextLevelCost() <= GameController.Instance.GetMoney() && !_isPricetagHidden)
-        {
-            AudioController.Instance.PlayBuySellSound(BuyLevelSound);
-            GameController.Instance.AddMaxLevel();
+            if (GameController.Instance.GetNextLevelCost() <= GameController.Instance.GetMoney() &&
+                !_isPricetagHidden)
+            {
+                AudioController.Instance.PlayAudioEffect(BuyLevelSound, BuyLevelSoundVolume);
+                GameController.Instance.AddMaxLevel();
+            }
+            if (currentLevel < GameController.Instance.GetMaxLevel())
+            {
+                AudioController.Instance.PlayAudioEffect(MoveDownSound, MoveDownSoundVolume);
+                ChangeLevel(++currentLevel);
+            }
         }
         else if (ChangeDirection == Direction.Up && currentLevel > 1)
         {
-            AudioController.Instance.PlayLevelUpSound(MoveUpSound);
+            AudioController.Instance.PlayAudioEffect(MoveUpSound, MoveDownSoundVolume);
             ChangeLevel(--currentLevel);
         }
     }

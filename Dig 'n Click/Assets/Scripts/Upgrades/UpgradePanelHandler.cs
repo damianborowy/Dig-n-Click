@@ -13,6 +13,7 @@ public class UpgradePanelHandler : MonoBehaviour
     public Text NextMultiplier;
     public Slider MultiplyProgressSlider;
     public AudioClip BuySound;
+    public float BuySoundVolume;
 
     private UpgradesConsts.UpgradeValues _upgradeValues;
     private double _nextUpgradeCost;
@@ -21,12 +22,11 @@ public class UpgradePanelHandler : MonoBehaviour
     private void Awake()
     {
         _upgradeButton = gameObject.GetComponentInChildren<Button>();
+        _upgradeValues = UpgradesConsts.GetUpgradeValues(Upgrade);
     }
 
     private void Start()
     {
-        _upgradeValues = UpgradesConsts.GetUpgradeValues(Upgrade);
-
         CalculateNextUpgradeCost();
         ToggleSlot();
     }
@@ -35,15 +35,16 @@ public class UpgradePanelHandler : MonoBehaviour
     {
         var prestigeBonus = GameController.Instance.GetPrestigeCrystals() *
                             GameController.Instance.GetPrestigeCrystalsMultiplier();
+
         var productivity = _upgradeValues.Productivity * UpgradesController.CalculateMultiplier(Upgrade);
-            productivity += productivity * prestigeBonus;
+        productivity += productivity * prestigeBonus;
 
         if (Upgrade.Equals(Upgrade.Upgrade1))
         {
             var strength = GameController.Instance.GetStrength();
-                strength += strength * prestigeBonus;
 
-            UpgradeDescription.text = "Increases <b>DMG</b> by <b>" + MoneyConverter.ConvertNumber(productivity) + "</b>.";
+            UpgradeDescription.text =
+                "Increases <b>DMG</b> by <b>" + MoneyConverter.ConvertNumber(productivity) + "</b>.";
             ActualProductivity.text = "Current <b>DMG</b> is <b>" + MoneyConverter.ConvertNumber(strength) + "</b>.";
 
             if (!UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade)) return;
@@ -54,15 +55,19 @@ public class UpgradePanelHandler : MonoBehaviour
         else if (Upgrade.Equals(Upgrade.Upgrade2))
         {
             UpgradeDescription.text = "Shortens auto mining interval by <b>" + _upgradeValues.Productivity + "s</b>.";
-            ActualProductivity.text = "Current mining interval is <b>" + GameController.Instance.GetMiningSpeed() + "s</b>.";
+            ActualProductivity.text =
+                "Current mining interval is <b>" + GameController.Instance.GetMiningSpeed() + "s</b>.";
             NextMultiplier.text = "";
         }
         else
         {
             var autoStrength = UpgradesController.CalculateUpgradeProductivity(Upgrade);
-                autoStrength += autoStrength * prestigeBonus;
-            UpgradeDescription.text = "Increases <b>DPS</b> by <b>" + MoneyConverter.ConvertNumber(productivity) + "</b>.";
-            ActualProductivity.text = "Current <b>DPS</b> is <b>" + MoneyConverter.ConvertNumber(autoStrength) + "</b>.";
+            autoStrength += autoStrength * prestigeBonus;
+
+            UpgradeDescription.text =
+                "Increases <b>DPS</b> by <b>" + MoneyConverter.ConvertNumber(productivity) + "</b>.";
+            ActualProductivity.text =
+                "Current <b>DPS</b> is <b>" + MoneyConverter.ConvertNumber(autoStrength) + "</b>.";
 
             if (!UpgradesController.Instance.UpgradesDictionary.ContainsKey(Upgrade)) return;
 
@@ -101,6 +106,7 @@ public class UpgradePanelHandler : MonoBehaviour
         if (Upgrade.Equals(Upgrade.Upgrade2) &&
             UpgradesController.Instance.UpgradesDictionary[Upgrade.Upgrade2] >= 20)
         {
+            UpdateText();
             _upgradeButton.GetComponentInChildren<Text>().text = "MAX";
             UpgradeLevel.text = "Level MAX";
             return;
@@ -117,7 +123,7 @@ public class UpgradePanelHandler : MonoBehaviour
 
         ToggleButtonFade();
         UpdateSlider();
-        GameController.Instance.SetMiningPowerText();
+        GameController.Instance.UpdateMiningPowerText();
         UpdateText();
     }
 
@@ -157,7 +163,7 @@ public class UpgradePanelHandler : MonoBehaviour
 
     public void OnClick()
     {
-        AudioController.Instance.PlayBuySellSound(BuySound);
+        AudioController.Instance.PlayAudioEffect(BuySound, BuySoundVolume);
 
         var controller = GameController.Instance;
 

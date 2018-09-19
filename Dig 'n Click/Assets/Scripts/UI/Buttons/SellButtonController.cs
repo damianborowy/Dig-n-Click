@@ -10,6 +10,7 @@ public class SellButtonController : MonoBehaviour
 
     private RectTransform _rectTransform;
     private Ore _assignedOre;
+    private SellHandler _instantiatedSellHandler;
 
     private void Awake()
     {
@@ -25,9 +26,15 @@ public class SellButtonController : MonoBehaviour
     public void OnClick()
     {
         GameObject sellPanelGameObject = Instantiate(SellPanel, GameObject.FindWithTag("Canvas").transform);
-        SellHandler sellHandler = sellPanelGameObject.GetComponent<SellHandler>();
-        sellHandler.Initialize(_assignedOre, EquipmentController.Instance.Items[_assignedOre]);
+        _instantiatedSellHandler = sellPanelGameObject.GetComponent<SellHandler>();
+        _instantiatedSellHandler.Initialize(_assignedOre, EquipmentController.Instance.Items[_assignedOre]);
         Clear();
+    }
+
+    public void UpdateMaxValueInSellHandler()
+    {
+        if (_instantiatedSellHandler != null)
+            _instantiatedSellHandler.UpdateMaxAmount();
     }
 
     public void SetParent(RectTransform parent)

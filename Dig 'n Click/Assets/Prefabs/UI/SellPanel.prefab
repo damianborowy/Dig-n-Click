@@ -723,6 +723,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SellSound: {fileID: 8300000, guid: 0cffa01ac8ae57146adf9098ee4af76c, type: 3}
+  SellSoundVolume: 0.4
 --- !u!114 &114799141364091972
 MonoBehaviour:
   m_ObjectHideFlags: 1

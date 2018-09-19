@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.UI;
 
 public class PrestigeController : MonoBehaviour
@@ -16,6 +17,7 @@ public class PrestigeController : MonoBehaviour
 
     public float TimeBetweenLevelChange;
     public AudioClip CrystalSound;
+    public float CrystalSoundVolume;
     public BackgroundScroller Scroller;
     public GameObject ShadowGameObject;
     public GameObject SliderGameObject;
@@ -56,12 +58,10 @@ public class PrestigeController : MonoBehaviour
 
         double prestigeReward = 150 * Math.Sqrt(totalMoney / Math.Pow(10, 9));
 
-        Debug.Log("Current prestige reward: " + prestigeReward);
-
         return Math.Round(prestigeReward);
     }
 
-    private void UpdateOwnedAmount()
+    public void UpdateOwnedAmount()
     {
         OwnedAmount.text = MoneyConverter.ConvertNumber(GameController.Instance.GetPrestigeCrystals());
     }
@@ -88,16 +88,9 @@ public class PrestigeController : MonoBehaviour
 
     public void DoPrestige(double prestigeCrystalsToBeAdded)
     {
-        UpgradesController.Instance.OverrideUpgrades();
-        foreach (Transform childUpgradeTransform in UpgradesPanel.transform)
-        {
-            var upgradePanelHandler = childUpgradeTransform.gameObject.GetComponent<UpgradePanelHandler>();
-            upgradePanelHandler.CalculateNextUpgradeCost();
-            upgradePanelHandler.ToggleSlot();
-        }
-
         EquipmentController.Instance.Items = new SortedList<Ore, int>(new OreCompareByValue());
         EquipmentController.Instance.UpdateItemSlots();
+        UpgradesController.Instance.OverrideUpgrades();
 
         var controller = GameController.Instance;
         controller.AddPrestigeCrystals(prestigeCrystalsToBeAdded);
@@ -109,8 +102,17 @@ public class PrestigeController : MonoBehaviour
         controller.CalculateMiningSpeed();
         controller.CalculateStrength();
 
+        foreach (Transform childUpgradeTransform in UpgradesPanel.transform)
+        {
+            var upgradePanelHandler = childUpgradeTransform.gameObject.GetComponent<UpgradePanelHandler>();
+            upgradePanelHandler.CalculateNextUpgradeCost();
+            upgradePanelHandler.ToggleSlot();
+        }
+
         UpdateOwnedAmount();
         UpdateReward();
+        
+        AnalyticsEvent.Custom("Prestige", new Dictionary<string, object>() {{"Level", _prestigeLevel}});
 
         StartCoroutine(StartAnimation());
     }
@@ -128,7 +130,7 @@ public class PrestigeController : MonoBehaviour
         if (rock != null)
             Destroy(rock);
 
-        AudioController.Instance.PlayCrystalSound(CrystalSound);
+        AudioController.Instance.PlayAudioEffectInLoop(CrystalSound, CrystalSoundVolume);
 
         StartCoroutine(ChangeLevel());
         while (!_isLevelChangeFinished)
@@ -142,7 +144,7 @@ public class PrestigeController : MonoBehaviour
         particleSystem.Stop();
         Destroy(instantiatedAnimatedPrestigeGameObject, particleSystem.main.duration);
 
-        AudioController.Instance.StopCrystalSound();
+        AudioController.Instance.StopAndDestroyLoopedAudioEffects();
 
         OreProbabilitesGameObject.SetActive(true);
         ShadowGameObject.SetActive(true);
