@@ -70,7 +70,7 @@ public class AudioController : MonoBehaviour
     {
         AudioSource audioSource = CreateAudioSource(audioClip, volume);
         audioSource.Play();
-        DestroyByClipLenght(audioSource);
+        DestroyByClipLength(audioSource);
     }
 
     public void PlayAudioEffectInLoop(AudioClip audioClip, float volume)
@@ -95,11 +95,11 @@ public class AudioController : MonoBehaviour
         foreach (var loopedAudioEffect in _loopedAudioEffects)
         {
             loopedAudioEffect.loop = false;
-            DestroyByClipLenght(loopedAudioEffect);
+            DestroyByClipLength(loopedAudioEffect);
         }
     }
 
-    private void DestroyByClipLenght(AudioSource audioSource)
+    private void DestroyByClipLength(AudioSource audioSource)
     {
         float clipLength = audioSource.clip.length;
         Destroy(audioSource.gameObject, clipLength);

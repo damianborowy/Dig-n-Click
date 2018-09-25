@@ -10,6 +10,8 @@ public class AnimatedWindowClose : MonoBehaviour
     public float TriggerAtPercent;
     public float ScaleSpeed;
     public Mode ButtonMode;
+    public AudioClip CloseSound;
+    public float CloseSoundVolume;
 
     public enum Mode
     {
@@ -32,6 +34,7 @@ public class AnimatedWindowClose : MonoBehaviour
     public void CloseWindow()
     {
         _button.interactable = false;
+        PlayCloseSound();
         StartCoroutine(CloseAnimation());
     }
 
@@ -46,6 +49,11 @@ public class AnimatedWindowClose : MonoBehaviour
             yield return null;
         }
 
+        FinalizeButton();
+    }
+
+    private void FinalizeButton()
+    {
         switch (ButtonMode)
         {
             case Mode.Destroy:
@@ -60,5 +68,10 @@ public class AnimatedWindowClose : MonoBehaviour
             default:
                 throw new InvalidEnumArgumentException();
         }
+    }
+
+    private void PlayCloseSound()
+    {
+        AudioController.Instance.PlayAudioEffect(CloseSound, CloseSoundVolume);
     }
 }

@@ -10,10 +10,13 @@ public class DailyRewards : MonoBehaviour
     public Sprite InactiveButtonImage;
     public Sprite ActiveButtonImage;
     public GameObject[] RewardAvailableExclamationMarks;
+    public AudioClip ClaimSound;
+    public float ClaimSoundVolume;
 
     private int _claimCount;
     private double _lastClaimTime;
     private bool _isInitialized;
+    private int[] _rewards = new[] {1, 5, 10, 5, 5, 15, 25};
 
     private void Start()
     {
@@ -28,7 +31,7 @@ public class DailyRewards : MonoBehaviour
         CheckClaimCount();
         ToggleButtons();
     }
-    
+
     private void CheckClaimCount()
     {
         double timeSinceLastClaim = GetTimeSinceLastClaim();
@@ -75,6 +78,11 @@ public class DailyRewards : MonoBehaviour
     private double GetTimeSinceLastClaim()
     {
         return GetCurrentTime() - _lastClaimTime;
+    }
+    
+    private double GetCurrentTime()
+    {
+        return (DateTime.UtcNow - GameController.EpochTimeStart).TotalSeconds;
     }
 
     private void SetButtonClaimed(Button targetButton)
@@ -152,8 +160,8 @@ public class DailyRewards : MonoBehaviour
         ++_claimCount;
         SetButtonClaimed(RewardsSlotsButtons[dayIndex]);
         DeactivateExclamationMarks();
-        Debug.Log("Claimed reward for day index: " + dayIndex);
-        //TODO Insert rewards method here.
+        AddPrestigeCrystals(_rewards[dayIndex]);
+        AudioController.Instance.PlayAudioEffect(ClaimSound, ClaimSoundVolume);
     }
 
     private void DeactivateExclamationMarks()
@@ -164,8 +172,9 @@ public class DailyRewards : MonoBehaviour
         }
     }
 
-    private double GetCurrentTime()
+    private void AddPrestigeCrystals(int amount)
     {
-        return (DateTime.UtcNow - GameController.EpochTimeStart).TotalSeconds;
+        GameController.Instance.AddPrestigeCrystals(amount);
+        PrestigeController.Instance.UpdateOwnedAmount();
     }
 }

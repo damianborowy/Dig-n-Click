@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Advertisements;
 
 public class RandomRewardSpawner : MonoBehaviour
 {
     public GameObject Candy;
-    public float SpawnChance;
-    public float SpawnInterval;
-    public AudioClip CandySound;
-    public float CandySoundVolume;
+    public GameObject AdCandy;
+    public float SpawnTimeLowerBound;
+    public float SpawnTimeUpperBound;
+    public float AdvertisementChance;
 
     private RectTransform _rectTransform;
 
@@ -26,18 +27,32 @@ public class RandomRewardSpawner : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(SpawnInterval);
-            if (Random.value < SpawnChance)
-                SpawnCandyAtRandomPosition();
+            yield return new WaitForSeconds(Random.Range(SpawnTimeLowerBound, SpawnTimeUpperBound));
+            SpawnCandy();
         }
     }
 
-    private void SpawnCandyAtRandomPosition()
+    private void SpawnCandy()
     {
-        GameObject candygGameObject = Instantiate(Candy, _rectTransform);
+        GameObject candyToSpawn = PickCandyToSpawn();
+        SpawnCandyAtRandomPosition(candyToSpawn);
+    }
+
+    private GameObject PickCandyToSpawn()
+    {
+        return ShouldAdBeShown() ? AdCandy : Candy;
+    }
+
+    private bool ShouldAdBeShown()
+    {
+        return Random.value < AdvertisementChance && Advertisement.IsReady();
+    }
+
+    private void SpawnCandyAtRandomPosition(GameObject candyToSpawn)
+    {
+        GameObject candygGameObject = Instantiate(candyToSpawn, _rectTransform);
         candygGameObject.transform.position = GetRandomPosition();
         candygGameObject.transform.rotation = GetRandomRotation();
-        AudioController.Instance.PlayAudioEffect(CandySound, CandySoundVolume);
     }
 
     private Vector3 GetRandomPosition()

@@ -9,6 +9,8 @@ public class EquipmentUI : MonoBehaviour
     public GameObject Slot;
     public GameObject ScrollableSlots;
     public List<BookmarkChanger> Bookmarks;
+    public AudioClip BookmarkSound;
+    public float BookmarkSoundVolume;
 
     private MovingUIHandler _movingUIHandler;
 
@@ -37,6 +39,11 @@ public class EquipmentUI : MonoBehaviour
             else
                 Bookmarks[i].Deactivate();
         }
+    }
+
+    public void PlayBookmarkSound()
+    {
+        AudioController.Instance.PlayAudioEffect(BookmarkSound, BookmarkSoundVolume);
     }
 
     public void Toggle()

@@ -1,11 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Advertisements;
 
 public class RandomReward : MonoBehaviour
 {
+    public bool IsAdvertised;
     public GameObject RewardText;
+    public GameObject AdRewardWindow;
+    public AudioClip CandySound;
+    public float CandySoundVolume;
     public AudioClip CandyPopSound;
     public float CandyPopSoundVolume;
 
@@ -21,14 +27,21 @@ public class RandomReward : MonoBehaviour
     {
         private GameObject _rewardText;
         private Transform _targetTransform;
+        private Text _createdTextCopy;
 
         protected Reward(GameObject rewardText, Transform targetTransform)
         {
             _rewardText = rewardText;
             _targetTransform = targetTransform;
+            _createdTextCopy = null;
         }
 
         public abstract void GetReward();
+
+        public Text GetCreatedTextCopy()
+        {
+            return _createdTextCopy;
+        }
 
         protected static int GetCurrentRocksDestroyed(double time)
         {
@@ -43,6 +56,7 @@ public class RandomReward : MonoBehaviour
             rewardText.text = text;
             rewardText.color = color;
             rewardText.rectTransform.position = _targetTransform.position;
+            _createdTextCopy = rewardText;
         }
 
         private Text CreateTextGameobject()
@@ -153,20 +167,67 @@ public class RandomReward : MonoBehaviour
             new MoneyReward(RewardText, transform),
             new OreReward(RewardText, transform),
             new PrestigeCrystalReward(RewardText, transform),
-            new DPSReward(RewardText, transform) 
+            new DPSReward(RewardText, transform)
         };
     }
 
-    public void GetReward()
+    private void Start()
     {
-        AudioController.Instance.PlayAudioEffect(CandyPopSound, CandyPopSoundVolume);
-        PickRandomReward().GetReward();
-        //TODO Add DPS bonus reward.
-        Destroy(gameObject);
+        AudioController.Instance.PlayAudioEffect(CandySound, CandySoundVolume);
+    }
+
+    public void OnClick()
+    {
+        if (IsAdvertised)
+            ShowRewardedVideo();
+        else
+        {
+            Reward randomReward = PickRandomReward();
+            randomReward.GetReward();
+            DestroyCandy();
+        }
+    }
+
+    private void ShowRewardedVideo()
+    {
+        ShowOptions options = new ShowOptions();
+        options.resultCallback = HandleShowResult;
+        Advertisement.Show("rewardedVideo", options);
+    }
+
+    private void HandleShowResult(ShowResult result)
+    {
+        if (result == ShowResult.Finished)
+        {
+            Debug.Log("Video completed");
+            Reward randomReward = PickRandomReward();
+            randomReward.GetReward();
+            Text randomRewardText = randomReward.GetCreatedTextCopy();
+            CreateAdRewardWindow(randomRewardText);
+        }
+        else
+            Debug.Log("Video failed to show");
+
+        DestroyCandy();
     }
 
     private Reward PickRandomReward()
     {
         return _rewards[Random.Range(0, _rewards.Length)];
+    }
+
+    private void CreateAdRewardWindow(Text rewardText)
+    {
+        GameObject instantiatedAdRewardWindow = Instantiate(AdRewardWindow, GameObject.FindWithTag("Canvas").transform);
+        TextMeshProUGUI Text = instantiatedAdRewardWindow.GetComponentInChildren<TextMeshProUGUI>();
+        Text.text = "<br><size=%27>For watching an ad<br>you earned:</size><br><br> ";
+        Text.text += "<color=#" + ColorUtility.ToHtmlStringRGB(rewardText.color) + ">" + rewardText.text + "</color><br> ";
+        LayoutRebuilder.ForceRebuildLayoutImmediate(instantiatedAdRewardWindow.transform as RectTransform);
+    }
+
+    private void DestroyCandy()
+    {
+        AudioController.Instance.PlayAudioEffect(CandyPopSound, CandyPopSoundVolume);
+        Destroy(gameObject);
     }
 }

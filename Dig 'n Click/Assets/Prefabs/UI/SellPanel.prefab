@@ -141,7 +141,6 @@ GameObject:
   - component: {fileID: 222218848498167248}
   - component: {fileID: 114401402551154726}
   - component: {fileID: 114280866187264332}
-  - component: {fileID: 114614314752071772}
   m_Layer: 5
   m_Name: SellButton
   m_TagString: Untagged
@@ -419,6 +418,8 @@ MonoBehaviour:
   TriggerAtPercent: 0
   ScaleSpeed: 5
   ButtonMode: 0
+  CloseSound: {fileID: 8300000, guid: 8b650d30325e55645ae7a5e331b8f49e, type: 3}
+  CloseSoundVolume: 0.5
 --- !u!114 &114280866187264332
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -469,7 +470,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 114614314752071772}
+      - m_Target: {fileID: 114199453690881242}
         m_MethodName: CloseWindow
         m_Mode: 1
         m_Arguments:
@@ -696,21 +697,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114614314752071772
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1530897078698840}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca5b11ae442c389468244df777efb9f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ParentLevel: 2
-  TriggerAtPercent: 0
-  ScaleSpeed: 5
-  ButtonMode: 0
 --- !u!114 &114643779899657270
 MonoBehaviour:
   m_ObjectHideFlags: 1

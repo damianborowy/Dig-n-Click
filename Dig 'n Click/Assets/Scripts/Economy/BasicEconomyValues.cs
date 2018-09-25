@@ -6,7 +6,7 @@ public static class BasicEconomyValues
 {
     // Ascending cost
     public const int BaseAscendCost = 4;
-    public const int AscendBias = 6;
+    public const int AscendBias = 16;
     public const float AscendExponentialMultiplier = 1.14f;
 
     // Rock values
@@ -25,6 +25,6 @@ public static class BasicEconomyValues
 
     public static double MoneyReward(int level)
     {
-        return Mathf.Ceil(BaseEarnings * level);
+        return Mathf.Ceil(Mathf.Pow(level, 1.5f) * 0.3f + 2);
     }
 }
